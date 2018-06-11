@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+
+    <title>A Trello Clone</title>
+    <link href="./reset.css" rel="stylesheet">
+    <link href="./styles.css" rel="stylesheet">
+</head>
+
+<body>
+    <section id="header">
+        <h1>A Trello Clone</h1>
+        <h2>...in vanilla Javascript</h2>
+    </section>
+
+    <section id="boards">
+        <div id="new-board" class="board">
+            <span class="close-btn">x</span>
+            <input type="text" placeholder="Enter board name..." onkeypress="createBoard(this)" />
+        </div>
+
+        <!-- display already-created boards here -->
+        <div id="create-board" class="board">
+            <h1>Create new board...</h1>
+        </div>
+    </section>
+
+    <script src="./main.js"></script>
+</body>
+
+</html>
