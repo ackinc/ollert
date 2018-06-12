@@ -96,3 +96,75 @@ body {
     background-color: gray;
     font-weight: normal;
 }
+
+
+
+#lists {
+    display: none;
+    flex-direction: column;
+}
+
+#lists-controls {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 67%;
+    margin: 0 auto 50px;
+}
+
+#lists-controls h1 {
+    font-size: 24px;
+}
+
+button {
+    background-color: #0079BF;
+    border: 0px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    color: white;
+    font-size: 18px;
+    height: 50px;
+    padding: 5px 10px;
+    text-align: center;
+}
+
+button:hover {
+    background-color: #005B8F;
+    cursor: pointer;
+}
+
+#create-list {
+    padding: 5px 50px;
+}
+
+#lists-lists {
+    width: 67%;
+    margin: 0 auto;
+}
+
+.list {
+    border-radius: 5px;
+    background-color: rgb(192, 192, 192);
+
+    display: flex;
+    flex-flow: column nowrap;
+
+    width: 25%;
+}
+
+.list .list-header input {
+    background-color: rgb(153, 153, 153);
+    border-radius: 0px;
+    border: 0px;
+    box-sizing: border-box;
+    color: white;
+    height: 40px;
+    padding: 5px 20px;
+    width: 100%;
+}
+
+#new-list {
+    display: none;
+}

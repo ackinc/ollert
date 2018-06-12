@@ -6,9 +6,19 @@ const new_board_elem_close_btn = new_board_elem.getElementsByClassName('close-bt
 const new_board_elem_input = new_board_elem.getElementsByTagName('input')[0];
 const create_board_elem = document.getElementById('create-board');
 
+const lists = document.getElementById('lists');
+const view_boards_btn = document.getElementById('view-boards');
+const create_list_btn = document.getElementById('create-list');
+const new_list_elem = document.getElementById('new-list');
+
 new_board_elem_close_btn.onclick = hideNewBoardElem;
 new_board_elem_input.onkeypress = newBoardElemInputHandler;
 create_board_elem.onclick = showNewBoardElem;
+view_boards_btn.onclick = function () {
+    hideLists();
+    showBoards();
+}
+create_list_btn.onclick = showNewListElem;
 
 function showNewBoardElem() {
     new_board_elem.style.display = "flex";
@@ -42,11 +52,18 @@ function createBoard(name) {
         const board = document.createElement('div');
         board.id = `board-${name}`;
         board.classList.add('board');
+        board.onclick = function () {
+            hideBoards();
+            showLists(name);
+        }
 
         const close = document.createElement('span');
         close.innerText = 'x';
         close.classList.add('close-btn');
-        close.onclick = function () { closeBoardWithId(board.id); };
+        close.onclick = function (e) {
+            closeBoardWithId(board.id);
+            e.stopPropagation();
+        };
         board.appendChild(close);
 
         const h1 = document.createElement('h1');
@@ -72,4 +89,35 @@ function closeBoardWithId(id) {
         boards.removeChild(board);
         return true;
     }
+}
+
+function hideBoards() {
+    boards.style.display = "none";
+}
+
+function showBoards() {
+    boards.style.display = "grid";
+}
+
+function hideLists() {
+    new_list_elem.getElementsByTagName('input')[0].value = "";
+    new_list_elem.style.display = "none";
+
+    // TODO: remove lists from #lists-lists
+    lists.style.display = "none";
+}
+
+function showLists(board_name) {
+    document.getElementById('board-name').innerText = board_name;
+
+    // TODO: add lists associated with this board
+
+    lists.style.display = "flex";
+}
+
+function showNewListElem() {
+    new_list_elem.style.display = "flex";
+    new_list_elem.getElementsByTagName('input')[0].focus();
+    // TODO: get name of new list
+    // TODO: add new list html to DOM
 }
