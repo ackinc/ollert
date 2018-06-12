@@ -11,7 +11,7 @@ new_board_elem_input.onkeypress = newBoardElemInputHandler;
 create_board_elem.onclick = showNewBoardElem;
 
 function showNewBoardElem() {
-    document.getElementById('new-board').style.display = "flex";
+    new_board_elem.style.display = "flex";
     new_board_elem.getElementsByTagName('input')[0].focus();
 }
 
@@ -65,8 +65,7 @@ function closeBoardWithId(id) {
     const name = id.substring(6); // removes the "board-" prefix from the id
     if (!data.hasOwnProperty(name)) {
         return false;
-    }
-    else {
+    } else {
         delete data[name];
 
         const board = document.getElementById(id);

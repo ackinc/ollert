@@ -6,6 +6,8 @@ body {
 #header {
     background-color: #0079BF;
     padding: 30px 0;
+
+    margin-bottom: 3em;
 }
 
 #header h1 {
@@ -25,7 +27,6 @@ body {
 
 
 #boards {
-    margin-top: 5em;
     margin-left: auto;
     margin-right: auto;
     width: 67%;
@@ -64,6 +65,10 @@ body {
     position: absolute;
     top: 5px;
     right: 5px;
+}
+
+.board span.close-btn:hover {
+    color: #d67575;
 }
 
 /*
