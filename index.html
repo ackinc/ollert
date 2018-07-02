@@ -10,45 +10,17 @@
     <link href="./styles.css" rel="stylesheet">
 </head>
 
-<body>
-    <section id="header">
-        <h1>A Trello Clone</h1>
-        <h2>...in vanilla Javascript</h2>
-    </section>
+<body spellcheck="false">
+    <header>
+        <h1>
+            <a href="">A Trello Clone</a>
+        </h1>
+        <h2>(in vanilla Javascript)</h2>
+    </header>
 
-    <section id="boards">
-        <div id="new-board" class="board">
-            <span class="close-btn">x</span>
-            <input type="text" placeholder="Enter board name..." onkeypress="createBoard(this)" />
-        </div>
-
-        <!-- display already-created boards here -->
-
-        <div id="create-board" class="board">
-            <h1>Create new board...</h1>
-        </div>
-    </section>
-
-    <section id="lists">
-        <div id="lists-controls">
-            <button id="view-boards">
-                🡠 &nbsp; &nbsp; &nbsp; Boards
-            </button>
-            <h1 id="board-name"></h1>
-            <button id="create-list">
-                Create list
-            </button>
-        </div>
-        <div id="lists-lists">
-            <div id="new-list" class="list">
-                <div class="list-header">
-                    <input type="text" name="list-name" placeholder="Enter name..." />
-                </div>
-                <div class="list-content">
-                </div>
-            </div>
-        </div>
-    </section>
+    <main>
+        <!-- display boards/lists here -->
+    </main>
 
     <script src="./main.js"></script>
 </body>
