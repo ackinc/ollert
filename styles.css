@@ -111,7 +111,7 @@ main {
     color: #222222;
 }
 
-#new-board-form input {
+.board-name-input {
     border: 0px;
     border-radius: 2px;
 

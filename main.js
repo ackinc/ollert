@@ -3,8 +3,8 @@ const boards = JSON.parse(localStorage.getItem('boards') || '[]');
 const main_node = document.querySelector('main');
 const create_board_html = `<div class="board create-board"><h1>Create Board...</h1></div>`;
 const new_board_html = `<form id="new-board-form" class="board">
-                            <input type="text" name="board-name" placeholder="Enter name..." required autocomplete="off" />
-                        </form>`
+                            <input type="text" name="board-name" class="board-name-input" placeholder="Enter name..." required autocomplete="off" />
+                        </form>`;
 
 document.addEventListener('DOMContentLoaded', (e) => showBoards(boards));
 main_node.addEventListener('click', handleClick);
@@ -15,7 +15,9 @@ function showBoards(boards) {
 
 function renderBoards(boards) {
     return boards.map(board => `<div class="board">
-                                    <h1>${board.title}</h1>
+                                    <div class="board-content">
+                                        <h1>${board.title}</h1>
+                                    </div>
                                     <div class="board-controls">
                                         <span class="edit-board">E</span>
                                         <span class="close-board">X</span>
@@ -27,10 +29,10 @@ function handleClick(e) {
     const target_class = e.target.className;
     if (target_class.includes('create-board') || e.target.parentNode.className.includes('create-board')) {
         showNewBoardForm();
-    } else if (target_class.includes('edit-board')) {
-        // TODO: allow user to change board name
     } else if (target_class.includes('close-board')) {
         closeBoard(e);
+    } else if (target_class.includes('edit-board')) {
+        allowEditBoardName(e.target.parentNode.parentNode);
     } else if (target_class.includes('board')) {
         // TODO: show lists corresponding to board
     }
@@ -81,4 +83,36 @@ function closeBoard(e) {
     boards.splice(idx, 1);
     localStorage.boards = JSON.stringify(boards);
     main_node.removeChild(to_close);
+}
+
+function allowEditBoardName(board_node) {
+    const board_content_node = board_node.querySelector('.board-content')
+    const board_title_node = board_content_node.querySelector('h1');
+
+    if (!board_title_node) return; // this board is already being edited
+
+    const input_html = `<input type="text" class="board-name-input" value="${board_title_node.innerText}" />`;
+    board_content_node.innerHTML = input_html;
+
+    const board_title_input_node = board_content_node.querySelector('input');
+    board_title_input_node.addEventListener('blur', function (e) {
+        if (this.value !== "") editBoardName(board_node, this.value);
+    });
+    board_title_input_node.addEventListener('keyup', function (e) {
+        if (e.key === "Enter" && this.value !== "") editBoardName(board_node, this.value);
+    });
+
+    board_title_input_node.focus();
+}
+
+function editBoardName(board_node, new_name) {
+    let idx = 0, cur = main_node.firstChild;
+    while (cur !== board_node) {
+        cur = cur.nextSibling;
+        idx++;
+    }
+    boards[idx].title = new_name;
+    localStorage.boards = JSON.stringify(boards);
+
+    board_node.querySelector('.board-content').innerHTML = `<h1>${new_name}</h1>`;
 }
