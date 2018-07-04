@@ -110,3 +110,14 @@ main {
     background-color: rgb(148, 148, 148);
     color: #222222;
 }
+
+#new-board-form input {
+    border: 0px;
+    border-radius: 2px;
+
+    background-color: var(--main-color);
+    color: white;
+
+    height: 30px;
+    width: 95%;
+}
