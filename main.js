@@ -2,15 +2,23 @@ const boards = JSON.parse(localStorage.getItem('boards') || '[]');
 
 const main_node = document.querySelector('main');
 
-const create_board_html = `<button class="board-like create-board"><h1>Create Board...</h1></button>`;
+const create_board_html = `<button class="board-like create-board">Create Board...</button>`;
 const new_board_html = `<form id="new-board-form" class="board-like">
                             <input type="text" name="board-name" class="board-name-input" placeholder="Enter name..." required autocomplete="off" />
                         </form>`;
+
+const create_list_html = `<button class="create-list">Create List...</div>`;
+const new_list_html = `<form id="new-list-form" class="list-like">
+                           <input type="text" name="list-name" class="list-name-input" placeholder="Enter name..." required autocomplete="off" />
+                       </form>`;
 
 document.addEventListener('DOMContentLoaded', (e) => showBoards(boards));
 main_node.addEventListener('click', handleClick);
 
 function showBoards(boards) {
+    main_node.classList.remove('lists');
+    main_node.classList.add('boards');
+
     main_node.innerHTML = renderBoards(boards) + create_board_html;
 }
 
@@ -27,15 +35,15 @@ function renderBoards(boards) {
 }
 
 function handleClick(e) {
-    const target_class = e.target.className;
-    if (target_class.includes('create-board') || e.target.parentNode.className.includes('create-board')) {
+    const target_class = Array.from(e.target.classList);
+    if (target_class.includes('create-board') || Array.from(e.target.parentNode.classList).includes('create-board')) {
         showNewBoardForm();
     } else if (target_class.includes('close-board')) {
         closeBoard(e);
     } else if (target_class.includes('edit-board')) {
         allowEditBoardName(e.target.parentNode.parentNode);
-    } else if (target_class.includes('board')) {
-        // TODO: show lists corresponding to board
+    } else if (target_class.includes('board') || Array.from(e.target.parentNode.classList).includes('board') || Array.from(e.target.parentNode.parentNode.classList).includes('board')) {
+        showLists(getNearestParentWithClass(e.target, 'board'));
     }
 }
 
@@ -75,7 +83,7 @@ function createBoard(name) {
 
 function closeBoard(e) {
     // get a reference to the board that has to be removed
-    const to_close = e.target.parentNode.parentNode;
+    const to_close = getNearestParentWithClass(e.target, 'board');
     boards.splice(getBoardIndex(to_close), 1);
     localStorage.boards = JSON.stringify(boards);
     main_node.removeChild(to_close);
@@ -108,7 +116,32 @@ function editBoardName(board_node, new_name) {
     board_node.querySelector('.board-content').innerHTML = `<h1> ${new_name}</h1>`;
 }
 
-// helper function
+function showLists(board_node) {
+    main_node.classList.remove('boards');
+    main_node.classList.add('lists');
+
+    const lists = boards[getBoardIndex(board_node)].lists;
+    main_node.innerHTML = renderLists(lists) + create_list_html;
+}
+
+function renderLists(lists) {
+    return lists.map(list => `<div class="list list-like">
+                                <h1>${list.title}</h1>
+                                <ol class="list-items">
+                                    ${list.items.map(renderListItem).join('')}
+                                </ol>
+                                <div class="add-list-item"><input type="text" placeholder="Add item..." /></div>
+                              </div>`).join('');
+}
+
+function renderListItem(li) {
+    return `<li class="list-item ${li.done ? 'done' : ''}">${li.desc}</li>`;
+}
+
+
+
+// helper functions
+
 function getBoardIndex(board_node) {
     let idx = 0, cur = main_node.querySelector('.board');
     if (cur === null) return -1;
@@ -119,4 +152,9 @@ function getBoardIndex(board_node) {
     }
 
     return idx;
+}
+
+function getNearestParentWithClass(node, req_class) {
+    while (node !== null && !Array.from(node.classList).includes(req_class)) node = node.parentNode;
+    return node;
 }

@@ -12,6 +12,10 @@ body {
 
     font-family: Helvetica, sans-serif;
     font-size: 16px;
+
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
 * {
@@ -29,7 +33,7 @@ header {
     color: #DDDDDD;
     padding: 20px 0;
 
-    margin-bottom: 3em;
+    flex: 0 0 0;
 }
 
 header h1 {
@@ -51,11 +55,20 @@ header h2 {
 
 
 main {
+    flex: 1 0 0;
+    padding: 50px 0px 0px 100px;
+}
+
+.boards {
     display: flex;
     flex-flow: row wrap;
 
-    width: 90%;
-    margin: 0 auto;
+    overflow-y: auto;
+}
+
+.lists {
+    white-space: nowrap;
+    overflow-x: auto;
 }
 
 .board-like {
@@ -69,7 +82,7 @@ main {
 
     font-weight: bold;
 
-    margin-left: 50px;
+    margin-right: 50px;
     margin-bottom: 50px;
     padding-left: 5px;
     position: relative;
@@ -121,4 +134,98 @@ main {
 
     height: 30px;
     width: 95%;
+}
+
+.list-like {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+
+    display: inline-block;
+    vertical-align: top;
+
+    margin-right: 50px;
+    max-height: 95%;
+    overflow-y: auto;
+    width: 240px;
+}
+
+.list h1 {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+
+    color: gray;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-weight: bold;
+    font-size: 1.1em;
+
+    margin-bottom: 10px;
+
+    height: 40px;
+    width: 100%;
+}
+
+.list ol {
+    width: 100%;
+}
+
+.list ol li {
+    background-color: linear-gradient(white, gray);
+    border-radius: 5px;
+    box-shadow: 0 0 2px 0px rgba(0, 0, 0, 0.5);
+
+    color: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    align-items: center;
+
+    font-size: 0.8em;
+
+    margin: 0px auto 10px auto;
+    padding-left: 10px;
+
+    height: 40px;
+    width: 90%;
+}
+
+.list ol li:hover {
+    background-color: aliceblue;
+    cursor: pointer;
+}
+
+.list .add-list-item {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.list input {
+    border: 0px;
+    border-radius: 5px;
+
+    padding-left: 10px;
+
+    height: 35px;
+    width: 90%;
+}
+
+.create-list {
+    border: 0px;
+    border-radius: 5px;
+
+    background-color: rgba(0, 0, 0, 0.1);
+    color: white;
+
+    margin-right: 50px;
+
+    height: 40px;
+    width: 200px;
+}
+
+.create-list:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: gray;
+    cursor: pointer;
 }
