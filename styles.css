@@ -58,7 +58,7 @@ main {
     margin: 0 auto;
 }
 
-.board {
+.board-like {
     background-color: var(--main-color);
     border-radius: 5px;
 
@@ -95,13 +95,14 @@ main {
     background-color: #000000;
 }
 
-.board:hover {
+.board-like:hover {
     background-color: rgb(0, 96, 151);
     cursor: pointer;
 }
 
-.board.create-board {
+.create-board {
     background-color: rgb(184, 184, 184);
+    border: 0px;
     color: #555555;
     font-weight: normal;
 }

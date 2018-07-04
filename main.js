@@ -1,8 +1,9 @@
 const boards = JSON.parse(localStorage.getItem('boards') || '[]');
 
 const main_node = document.querySelector('main');
-const create_board_html = `<div class="board create-board"><h1>Create Board...</h1></div>`;
-const new_board_html = `<form id="new-board-form" class="board">
+
+const create_board_html = `<button class="board-like create-board"><h1>Create Board...</h1></button>`;
+const new_board_html = `<form id="new-board-form" class="board-like">
                             <input type="text" name="board-name" class="board-name-input" placeholder="Enter name..." required autocomplete="off" />
                         </form>`;
 
@@ -14,7 +15,7 @@ function showBoards(boards) {
 }
 
 function renderBoards(boards) {
-    return boards.map(board => `<div class="board">
+    return boards.map(board => `<div class="board board-like">
                                     <div class="board-content">
                                         <h1>${board.title}</h1>
                                     </div>
@@ -56,6 +57,8 @@ function showNewBoardForm() {
             if (e.explicitOriginalTarget !== form) hideNewBoardForm();
         });
         input.focus();
+    } else {
+        // do nothing if the new board form is already being shown
     }
 }
 
@@ -73,14 +76,7 @@ function createBoard(name) {
 function closeBoard(e) {
     // get a reference to the board that has to be removed
     const to_close = e.target.parentNode.parentNode;
-
-    let idx = 0, cur = main_node.querySelector('.board');
-    while (cur !== to_close) {
-        cur = cur.nextSibling;
-        idx++;
-    }
-
-    boards.splice(idx, 1);
+    boards.splice(getBoardIndex(to_close), 1);
     localStorage.boards = JSON.stringify(boards);
     main_node.removeChild(to_close);
 }
@@ -106,13 +102,21 @@ function allowEditBoardName(board_node) {
 }
 
 function editBoardName(board_node, new_name) {
-    let idx = 0, cur = main_node.firstChild;
-    while (cur !== board_node) {
-        cur = cur.nextSibling;
-        idx++;
-    }
-    boards[idx].title = new_name;
+    boards[getBoardIndex(board_node)].title = new_name;
     localStorage.boards = JSON.stringify(boards);
 
-    board_node.querySelector('.board-content').innerHTML = `<h1>${new_name}</h1>`;
+    board_node.querySelector('.board-content').innerHTML = `<h1> ${new_name}</h1>`;
+}
+
+// helper function
+function getBoardIndex(board_node) {
+    let idx = 0, cur = main_node.querySelector('.board');
+    if (cur === null) return -1;
+
+    while (cur !== board_node) {
+        idx++;
+        cur = cur.nextSibling;
+    }
+
+    return idx;
 }
