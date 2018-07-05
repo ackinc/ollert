@@ -35,15 +35,24 @@ function renderBoards(boards) {
 }
 
 function handleClick(e) {
-    const target_class = Array.from(e.target.classList);
-    if (target_class.includes('create-board') || Array.from(e.target.parentNode.classList).includes('create-board')) {
+    let node;
+
+    if (node = getNearestParentWithClass(e.target, 'create-board')) {
+
         showNewBoardForm();
-    } else if (target_class.includes('close-board')) {
-        closeBoard(e);
-    } else if (target_class.includes('edit-board')) {
-        allowEditBoardName(e.target.parentNode.parentNode);
-    } else if (target_class.includes('board') || Array.from(e.target.parentNode.classList).includes('board') || Array.from(e.target.parentNode.parentNode.classList).includes('board')) {
-        showLists(getNearestParentWithClass(e.target, 'board'));
+
+    } else if (node = getNearestParentWithClass(e.target, 'close-board')) {
+
+        closeBoard(getNearestParentWithClass(node, 'board'));
+
+    } else if (node = getNearestParentWithClass(e.target, 'edit-board')) {
+
+        allowEditBoardName(getNearestParentWithClass(node, 'board'));
+
+    } else if (node = getNearestParentWithClass(e.target, 'board')) {
+
+        showLists(node);
+
     }
 }
 
@@ -81,12 +90,10 @@ function createBoard(name) {
     showBoards(boards);
 }
 
-function closeBoard(e) {
-    // get a reference to the board that has to be removed
-    const to_close = getNearestParentWithClass(e.target, 'board');
-    boards.splice(getBoardIndex(to_close), 1);
+function closeBoard(board) {
+    boards.splice(getBoardIndex(board), 1);
     localStorage.boards = JSON.stringify(boards);
-    main_node.removeChild(to_close);
+    board.parentNode.removeChild(board);
 }
 
 function allowEditBoardName(board_node) {
@@ -155,6 +162,11 @@ function getBoardIndex(board_node) {
 }
 
 function getNearestParentWithClass(node, req_class) {
-    while (node !== null && !Array.from(node.classList).includes(req_class)) node = node.parentNode;
+    // the empty array guard in the second condition below is needed because
+    //   traversing the DOM upwards will eventually cause us to reach the html element,
+    //   whose classList property is undefined
+    while (node !== null && !Array.prototype.includes.call(node.classList || [], req_class)) {
+        node = node.parentNode;
+    }
     return node;
 }
