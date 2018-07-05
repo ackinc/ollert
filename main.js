@@ -1,4 +1,5 @@
 const boards = JSON.parse(localStorage.getItem('boards') || '[]');
+let cur_board = null;
 
 const main_node = document.querySelector('main');
 
@@ -20,6 +21,7 @@ function showBoards(boards) {
     main_node.classList.add('boards');
 
     main_node.innerHTML = renderBoards(boards) + create_board_html;
+    cur_board = null;
 }
 
 function renderBoards(boards) {
@@ -129,22 +131,38 @@ function showLists(board) {
 
     const lists = board.lists;
     main_node.innerHTML = renderLists(lists) + create_list_html;
+
+    main_node.querySelectorAll('.list input').forEach(elem => {
+        elem.addEventListener('keyup', function (e) {
+            if (e.key === "Enter" && this.value !== "") {
+                addItemToList(getNearestParentWithClass(this, 'list'), this.value);
+            }
+        });
+    });
+
+    cur_board = board;
 }
 
 function renderLists(lists) {
-    return lists.map(list => `<div class="list list-like">
-                                <h1>${list.title}</h1>
-                                <ol class="list-items">
-                                    ${list.items.map(renderListItem).join('')}
-                                </ol>
-                                <div class="add-list-item"><input type="text" placeholder="Add item..." /></div>
-                              </div>`).join('');
+    return lists.map((list, idx) => `<div class="list list-like" data-idx="${idx}">
+                                        <h1>${list.title}</h1>
+                                        <ol class="list-items">
+                                            ${list.items.map(renderListItem).join('')}
+                                        </ol>
+                                        <div class="add-list-item"><input type="text" placeholder="Add item..." /></div>
+                                    </div>`).join('');
 }
 
 function renderListItem(li) {
     return `<li class="list-item ${li.done ? 'done' : ''}">${li.desc}</li>`;
 }
 
+function addItemToList(list_node, item) {
+    cur_board.lists[+list_node.dataset.idx].items.push({ desc: item, done: false });
+    showLists(cur_board);
+
+    localStorage.boards = JSON.stringify(boards);
+}
 
 
 // helper functions
