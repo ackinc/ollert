@@ -136,10 +136,14 @@ main {
     width: 95%;
 }
 
+.lists div:last-child {
+    display: inline-block;
+}
+
 .list-like {
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    
+
     box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
 
     display: inline-block;
@@ -213,14 +217,16 @@ main {
     width: 90%;
 }
 
+#new-list-control-div {
+    margin-right: 50px;
+}
+
 .create-list {
     border: 0px;
     border-radius: 5px;
 
     background-color: rgba(0, 0, 0, 0.1);
     color: white;
-
-    margin-right: 50px;
 
     height: 40px;
     width: 200px;
@@ -229,5 +235,46 @@ main {
 .create-list:hover {
     background-color: rgba(0, 0, 0, 0.2);
     color: gray;
+    cursor: pointer;
+}
+
+#new-list-form {
+    background-color: rgba(0, 0, 0, 0.2);
+
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+
+    padding: 10px 5px;
+
+    width: 225px;
+}
+
+#new-list-form input {
+    border-radius: 5px;
+    border: 0px;
+    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+
+    padding: 5px;
+    margin-bottom: 10px;
+
+    height: 40px;
+    width: 95%;
+}
+
+#new-list-form button {
+    background-color: green;
+    border-radius: 5px;
+    border: 0px;
+    box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
+
+    color: white;
+
+    height: 40px;
+    width: 40%;
+}
+
+#new-list-form button:hover {
+    background-color: darkgreen;
     cursor: pointer;
 }

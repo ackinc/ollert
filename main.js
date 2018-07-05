@@ -8,9 +8,11 @@ const new_board_html = `<form id="new-board-form" class="board-like">
                             <input type="text" name="board-name" class="board-name-input" placeholder="Enter name..." required autocomplete="off" />
                         </form>`;
 
-const create_list_html = `<button class="create-list">Create List...</div>`;
+const create_list_html = `<button class="create-list">Create List...</button>`;
 const new_list_html = `<form id="new-list-form" class="list-like">
                            <input type="text" name="list-name" class="list-name-input" placeholder="Enter name..." required autocomplete="off" />
+                           <button type="submit">Add</button>
+                           <button>Cancel</button>
                        </form>`;
 
 document.addEventListener('DOMContentLoaded', (e) => showBoards(boards));
@@ -54,6 +56,10 @@ function handleClick(e) {
     } else if (node = getNearestParentWithClass(e.target, 'board')) {
 
         showLists(boards[getBoardIndex(node)]);
+
+    } else if (node = getNearestParentWithClass(e.target, 'create-list')) {
+
+        showNewListForm();
 
     }
 }
@@ -130,7 +136,7 @@ function showLists(board) {
     main_node.classList.add('lists');
 
     const lists = board.lists;
-    main_node.innerHTML = renderLists(lists) + create_list_html;
+    main_node.innerHTML = renderLists(lists) + `<div id="new-list-control-div">${create_list_html}</div>`;
 
     main_node.querySelectorAll('.list input').forEach(elem => {
         elem.addEventListener('keyup', function (e) {
@@ -155,6 +161,30 @@ function renderLists(lists) {
 
 function renderListItem(li) {
     return `<li class="list-item ${li.done ? 'done' : ''}">${li.desc}</li>`;
+}
+
+function showNewListForm() {
+    const new_list_control_div = main_node.querySelector('#new-list-control-div');
+    new_list_control_div.innerHTML = new_list_html;
+
+    const form = main_node.querySelector('#new-list-form');
+    const input = form.querySelector('input');
+    const cancel_btn = form.querySelector('button:last-child');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        createList(cur_board, input.value);
+    });
+    cancel_btn.addEventListener('click', e => {
+        showLists(cur_board);
+    });
+    input.focus();
+}
+
+function createList(board, title) {
+    board.lists.push({ title: title, items: [] });
+    showLists(cur_board);
+    localStorage.boards = JSON.stringify(boards);
 }
 
 function addItemToList(list_node, item) {
