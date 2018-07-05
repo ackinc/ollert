@@ -61,7 +61,16 @@ function handleClick(e) {
 
         showNewListForm();
 
+    } else if (node = getNearestParentWithClass(e.target, 'list-item-mark-done')) {
+
+        toggleListItemDone(getNearestParentWithClass(node, 'list-item'));
+
+    } else if (node = getNearestParentWithClass(e.target, 'list-item-delete')) {
+
+        deleteListItem(getNearestParentWithClass(node, 'list-item'));
+
     }
+
 }
 
 function showNewBoardForm() {
@@ -146,6 +155,16 @@ function showLists(board) {
         });
     });
 
+    // list item controls should be shown/hidden based on mouse position
+    main_node.querySelectorAll('.list .list-item').forEach(elem => {
+        elem.addEventListener('mouseover', function (e) {
+            this.querySelector('.list-item-controls').classList.remove('hidden');
+        });
+        elem.addEventListener('mouseout', function (e) {
+            this.querySelector('.list-item-controls').classList.add('hidden');
+        });
+    });
+
     cur_board = board;
 }
 
@@ -159,8 +178,14 @@ function renderLists(lists) {
                                     </div>`).join('');
 }
 
-function renderListItem(li) {
-    return `<li class="list-item ${li.done ? 'done' : ''}">${li.desc}</li>`;
+function renderListItem(li, idx) {
+    return `<li class="list-item ${li.done ? 'done' : ''}" data-idx="${idx}">
+                <span class="list-item-desc">${li.desc}</span>
+                <span class="list-item-controls hidden">
+                    <span class="list-item-mark-done">D</span>
+                    <span class="list-item-delete">X</span>
+                </span>
+            </li>`;
 }
 
 function showNewListForm() {
@@ -183,17 +208,38 @@ function showNewListForm() {
 
 function createList(board, title) {
     board.lists.push({ title: title, items: [] });
+
     showLists(cur_board);
     localStorage.boards = JSON.stringify(boards);
 }
 
 function addItemToList(list_node, item) {
     cur_board.lists[+list_node.dataset.idx].items.push({ desc: item, done: false });
-    showLists(cur_board);
 
+    showLists(cur_board);
     localStorage.boards = JSON.stringify(boards);
 }
 
+function toggleListItemDone(list_item_node) {
+    const item_idx = list_item_node.dataset.idx;
+    const list_idx = getNearestParentWithClass(list_item_node, 'list').dataset.idx;
+
+    console.log(cur_board.lists[list_idx].items[item_idx].done);
+    cur_board.lists[list_idx].items[item_idx].done = !cur_board.lists[list_idx].items[item_idx].done;
+    console.log(cur_board.lists[list_idx].items[item_idx].done);
+
+    showLists(cur_board);
+    localStorage.boards = JSON.stringify(boards);
+}
+
+function deleteListItem(list_item_node) {
+    const item_idx = list_item_node.dataset.idx;
+    const list_idx = getNearestParentWithClass(list_item_node, 'list').dataset.idx;
+    cur_board.lists[list_idx].items.splice(item_idx, 1);
+
+    showLists(cur_board);
+    localStorage.boards = JSON.stringify(boards);
+}
 
 // helper functions
 

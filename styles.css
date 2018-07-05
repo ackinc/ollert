@@ -187,19 +187,37 @@ main {
 
     display: flex;
     align-items: center;
+    justify-content: space-between;
 
     font-size: 0.8em;
 
     margin: 0px auto 10px auto;
     padding-left: 10px;
+    padding-right: 10px;
 
     height: 40px;
     width: 90%;
 }
 
+.list ol li.done {
+    text-decoration: line-through;
+}
+
 .list ol li:hover {
     background-color: aliceblue;
     cursor: pointer;
+}
+
+.list ol li .list-item-controls.hidden {
+    opacity: 0;
+}
+
+.list ol li .list-item-controls span {
+    padding: 5px 5px;
+}
+
+.list ol li .list-item-controls span:hover {
+    background-color: gray;
 }
 
 .list .add-list-item {
