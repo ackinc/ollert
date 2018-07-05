@@ -69,6 +69,10 @@ function handleClick(e) {
 
         deleteListItem(getNearestParentWithClass(node, 'list-item'));
 
+    } else if (node = getNearestParentWithClass(e.target, 'list-delete')) {
+
+        deleteList(getNearestParentWithClass(node, 'list'));
+
     }
 
 }
@@ -170,6 +174,7 @@ function showLists(board) {
 
 function renderLists(lists) {
     return lists.map((list, idx) => `<div class="list list-like" data-idx="${idx}">
+                                        <span class="list-delete">X</span>
                                         <h1>${list.title}</h1>
                                         <ol class="list-items">
                                             ${list.items.map(renderListItem).join('')}
@@ -213,6 +218,14 @@ function createList(board, title) {
     localStorage.boards = JSON.stringify(boards);
 }
 
+function deleteList(list_node) {
+    const list_idx = list_node.dataset.idx;
+    cur_board.lists.splice(list_idx, 1);
+
+    showLists(cur_board);
+    localStorage.boards = JSON.stringify(boards);
+}
+
 function addItemToList(list_node, item) {
     cur_board.lists[+list_node.dataset.idx].items.push({ desc: item, done: false });
 
@@ -224,9 +237,7 @@ function toggleListItemDone(list_item_node) {
     const item_idx = list_item_node.dataset.idx;
     const list_idx = getNearestParentWithClass(list_item_node, 'list').dataset.idx;
 
-    console.log(cur_board.lists[list_idx].items[item_idx].done);
     cur_board.lists[list_idx].items[item_idx].done = !cur_board.lists[list_idx].items[item_idx].done;
-    console.log(cur_board.lists[list_idx].items[item_idx].done);
 
     showLists(cur_board);
     localStorage.boards = JSON.stringify(boards);

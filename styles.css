@@ -149,10 +149,28 @@ main {
     display: inline-block;
     vertical-align: top;
 
+    position: relative;
+
     margin-right: 50px;
     max-height: 95%;
     overflow-y: auto;
     width: 240px;
+}
+
+.list .list-delete {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+
+    color: white;
+    font-size: 0.5em;
+}
+
+.list .list-delete:hover {
+    color: black;
+    cursor: pointer;
+
+    transform: scale(2);
 }
 
 .list h1 {
