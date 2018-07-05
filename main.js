@@ -51,7 +51,7 @@ function handleClick(e) {
 
     } else if (node = getNearestParentWithClass(e.target, 'board')) {
 
-        showLists(node);
+        showLists(boards[getBoardIndex(node)]);
 
     }
 }
@@ -123,11 +123,11 @@ function editBoardName(board_node, new_name) {
     board_node.querySelector('.board-content').innerHTML = `<h1> ${new_name}</h1>`;
 }
 
-function showLists(board_node) {
+function showLists(board) {
     main_node.classList.remove('boards');
     main_node.classList.add('lists');
 
-    const lists = boards[getBoardIndex(board_node)].lists;
+    const lists = board.lists;
     main_node.innerHTML = renderLists(lists) + create_list_html;
 }
 
