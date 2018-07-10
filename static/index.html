@@ -84,7 +84,7 @@
             elem.addEventListener('click', toggleForms);
         });
 
-        reg_form.querySelector('form').addEventListener('submit', function (e) {
+        reg_section.querySelector('form').addEventListener('submit', function (e) {
             e.preventDefault();
 
             const pass = this.querySelector('input[name="password"]');
@@ -98,7 +98,7 @@
             alert('Success!');
         });
 
-        login_form.querySelector('form').addEventListener('submit', function (e) {
+        login_section.querySelector('form').addEventListener('submit', function (e) {
             e.preventDefault();
 
             this.querySelector('.error').innerHTML = ``;
