@@ -3,11 +3,12 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
+    <title>Trello Clone</title>
 
-    <title>A Trello Clone</title>
-    <link href="./reset.css" rel="stylesheet">
-    <link href="./styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/reset.css" />
+    <link rel="stylesheet" href="./css/global.css" />
+    <link rel="stylesheet" href="./css/index.css" />
 </head>
 
 <body>
@@ -19,10 +20,99 @@
     </header>
 
     <main>
-        <!-- display boards/lists here -->
+        <section id="register_form">
+            <h1>Register</h1>
+            <form name="register">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" name="username" autofocus required />
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required />
+                </div>
+
+                <div class="input-group">
+                    <label>Confirm password</label>
+                    <input type="password" name="c_password" required />
+                </div>
+
+                <div class="error"></div>
+
+                <button type="submit">Sign me up!</button>
+            </form>
+
+            <p>Already registered? Sign in
+                <span class="toggle-form" data-show="login_form">here</span>
+            </p>
+        </section>
+
+        <section id="login_form" style="display: none">
+            <h1>Login</h1>
+            <form name="login">
+
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" name="username" required />
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required />
+                </div>
+
+                <div class="error"></div>
+
+                <button type="submit">Sign me in!</button>
+            </form>
+
+            <p>New user? Sign up
+                <span class="toggle-form" data-show="register_form">here</span>
+            </p>
+        </section>
     </main>
 
-    <script src="./main.js"></script>
+    <script>
+        const main_node = document.querySelector('main');
+        const reg_section = document.querySelector('section#register_form');
+        const login_section = document.querySelector('section#login_form');
+
+        let cur_section = reg_section;
+
+        document.querySelectorAll('span.toggle-form').forEach(elem => {
+            elem.addEventListener('click', toggleForms);
+        });
+
+        reg_form.querySelector('form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const pass = this.querySelector('input[name="password"]');
+            const c_pass = this.querySelector('input[name="c_password"]');
+            if (pass.value !== c_pass.value) {
+                this.querySelector('.error').innerHTML = `Passwords don't match`;
+                return;
+            }
+
+            this.querySelector('.error').innerHTML = ``;
+            alert('Success!');
+        });
+
+        login_form.querySelector('form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            this.querySelector('.error').innerHTML = ``;
+            alert('Success!');
+        });
+
+        function toggleForms() {
+            const other_section = cur_section === reg_section ? login_section : reg_section;
+            other_section.style.display = cur_section.style.display;
+            cur_section.style.display = "none";
+            cur_section = other_section;
+            cur_section.querySelector('input').focus();
+        }
+    </script>
 </body>
 
 </html>
