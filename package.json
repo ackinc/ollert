@@ -1,0 +1,26 @@
+{
+  "name": "trello-clone",
+  "version": "1.0.0",
+  "description": "Project 1: A Trello clone in Vanilla JS",
+  "main": "index.js",
+  "dependencies": {
+    "bcrypt": "^3.0.0",
+    "jsonwebtoken": "^8.3.0",
+    "mongodb": "^3.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ackinc/trello-clone.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ackinc/trello-clone/issues"
+  },
+  "homepage": "https://github.com/ackinc/trello-clone#readme"
+}

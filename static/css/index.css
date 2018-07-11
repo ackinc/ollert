@@ -51,6 +51,11 @@ section form input {
     padding-left: 10px;
 }
 
+section form .info {
+    color: yellowgreen;
+    font-size: 0.8em;
+}
+
 section form .error {
     color: red;
     font-size: 0.8em;

@@ -38,6 +38,7 @@
                     <input type="password" name="c_password" required />
                 </div>
 
+                <div class="info"></div>
                 <div class="error"></div>
 
                 <button type="submit">Sign me up!</button>
@@ -62,6 +63,7 @@
                     <input type="password" name="password" required />
                 </div>
 
+                <div class="info"></div>
                 <div class="error"></div>
 
                 <button type="submit">Sign me in!</button>
@@ -78,6 +80,8 @@
         const reg_section = document.querySelector('section#register_form');
         const login_section = document.querySelector('section#login_form');
 
+        const REGISTRATION_API_URL = '/api/register';
+
         let cur_section = reg_section;
 
         document.querySelectorAll('span.toggle-form').forEach(elem => {
@@ -87,15 +91,35 @@
         reg_section.querySelector('form').addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const pass = this.querySelector('input[name="password"]');
-            const c_pass = this.querySelector('input[name="c_password"]');
-            if (pass.value !== c_pass.value) {
+            this.querySelector('.info').innerHTML = ``;
+            this.querySelector('.error').innerHTML = ``;
+
+            const username = this.querySelector('input[name="username"]').value;
+            const pass = this.querySelector('input[name="password"]').value;
+            const c_pass = this.querySelector('input[name="c_password"]').value;
+            if (pass !== c_pass) {
                 this.querySelector('.error').innerHTML = `Passwords don't match`;
                 return;
             }
 
-            this.querySelector('.error').innerHTML = ``;
-            alert('Success!');
+            fetch(REGISTRATION_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: pass })
+            })
+                .then(res => res.json())
+                .then(body => {
+                    if (body.error) {
+                        this.querySelector('.error').innerHTML = body.error;
+                    } else if (body.redirect_url) {
+                        document.location.replace(body.redirect_url);
+                    } else {
+                        this.querySelector('.info').innerHTML = `Registration successful. Please log in.`;
+                    }
+                })
+                .catch(err => {
+                    this.querySelector('.error').innerHTML = `Network error.`;
+                });
         });
 
         login_section.querySelector('form').addEventListener('submit', function (e) {
