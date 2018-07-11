@@ -33,6 +33,8 @@ header {
     color: #DDDDDD;
     padding: 20px 0;
 
+    position: relative;
+
     flex: 0 0 0;
 }
 

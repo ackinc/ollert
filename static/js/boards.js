@@ -17,6 +17,7 @@ const new_list_html = `<form id="new-list-form" class="list-like">
 
 document.addEventListener('DOMContentLoaded', (e) => showBoards(boards));
 main_node.addEventListener('click', handleClick);
+document.querySelector('button.logout').addEventListener('click', logout);
 
 function showBoards(boards) {
     main_node.classList.remove('lists');
@@ -250,6 +251,11 @@ function deleteListItem(list_item_node) {
 
     showLists(cur_board);
     localStorage.boards = JSON.stringify(boards);
+}
+
+function logout() {
+    document.cookie = 'token=; Max-Age=-999999'; // deletes the "token" cookie
+    window.location.replace('/');
 }
 
 // helper functions
