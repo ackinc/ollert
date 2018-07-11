@@ -42,15 +42,14 @@ function handleRequest(req, res) {
     const is_req_body_allowed = method !== "GET";
 
     const asynctasks = [];
-    let dt_idx = false, rb_idx = false;
-    if (is_auth_required) {
-        dt_idx = asynctasks.length;
-        asynctasks.push(cb => checkAuthenticated(req, cb));
-    }
+    asynctasks.push(cb => checkAuthenticated(req, cb));
+
+    let rb_idx = false;
     if (is_req_body_allowed) {
         rb_idx = asynctasks.length;
         asynctasks.push(cb => processRequestBody(req, cb));
     }
+
     async.parallel(asynctasks, (err, results) => {
         if (err) {
             res.statusCode = 500;
@@ -58,12 +57,18 @@ function handleRequest(req, res) {
 
             console.error(err);
         } else {
-            if (dt_idx !== false) req.token = results[dt_idx];
+            req.token = results[0];
             if (rb_idx !== false) req.body = results[rb_idx];
 
             if (is_auth_required && !req.token) {
                 res.statusCode = 302;
                 res.setHeader('location', '/');
+                res.end();
+            } else if (url === '/index.html' && req.token) {
+                // if an already-logged-in user lands on the home page,
+                //   redirect him to the boards page
+                res.statusCode = 302;
+                res.setHeader('location', '/boards.html');
                 res.end();
             } else {
                 continueHandlingRequest();
