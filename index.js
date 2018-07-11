@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const mongo_client = require('mongodb').MongoClient;
 const path = require('path');
 
+const async = require('./libs/async');
+
 const PASSWORD_SALT_ROUNDS = 10;
 const PORT = 8000;
 const JWT_EXPIRY = 60 * 60 * 24 * 2; // 2 days
@@ -23,121 +25,125 @@ mongo_client.connect(MONGO_URL, { useNewUrlParser: true }, (err, client) => {
     console.log(`Connected to database at ${MONGO_URL}/${MONGO_DBNAME}`);
 });
 
-http.createServer((req, res) => {
+http.createServer(handleRequest)
+    .listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+
+
+
+//////////////////////
+// HELPER FUNCTIONS //
+//////////////////////
+function handleRequest(req, res) {
     let { method, url } = req;
     if (url === '/') url = '/index.html';
 
-    const req_for_static_file = method === "GET" && !/^\/api\//.test(url);
+    const is_auth_required = URLS_REQUIRING_AUTHENTICATION.indexOf(url) !== -1;
+    const is_req_for_static_file = method === "GET" && !/^\/api\//.test(url);
+    const is_req_body_allowed = method !== "GET";
 
-    if (req_for_static_file) {
-        if (URLS_REQUIRING_AUTHENTICATION.indexOf(url) !== -1) {
-            const token = extractCookieVal(req.headers.cookie, 'token');
-            if (!token) {
-                res.statusCode = 401;
+    const asynctasks = [];
+    let dt_idx = false, rb_idx = false;
+    if (is_auth_required) {
+        dt_idx = asynctasks.length;
+        asynctasks.push(cb => checkAuthenticated(req, cb));
+    }
+    if (is_req_body_allowed) {
+        rb_idx = asynctasks.length;
+        asynctasks.push(cb => processRequestBody(req, cb));
+    }
+    async.parallel(asynctasks, (err, results) => {
+        if (err) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: 'Server error' }));
+
+            console.error(err);
+        } else {
+            if (dt_idx !== false) req.token = results[dt_idx];
+            if (rb_idx !== false) req.body = results[rb_idx];
+
+            if (is_auth_required && !req.token) {
+                res.statusCode = 302;
+                res.setHeader('location', '/');
                 res.end();
             } else {
-                jwt.verify(token, SECRET_KEY, (err, decoded) => {
-                    if (err) {
-                        res.statusCode = 401;
-                        res.end();
-
-                        // ALTERNATIVE
-                        // sendFile('./static/index.html', res);
-                    } else {
-                        sendFile(`./static${url}`, res);
-                    }
-                });
+                continueHandlingRequest();
             }
-        } else {
-            sendFile(`./static${url}`, res);
         }
-    } else if (method === "POST" && url === "/api/register") {
-        processRequestBody(req, (err, body) => {
-            if (err) {
-                res.statusCode = 500;
-                res.end(JSON.stringify({ error: 'Server error' }));
-                console.error('Error processing request body');
-                console.error(err);
-            } else {
-                getUser(body.username, (err, user) => {
-                    if (err) {
-                        res.statusCode = 500;
-                        res.end(JSON.stringify({ error: 'Server error' }));
-                        throw err;
-                    } else if (user) {
-                        res.statusCode = 400;
-                        res.end(JSON.stringify({ error: 'Username already taken' }));
-                    } else {
-                        createUser(body.username, body.password, err => {
-                            if (err) {
-                                res.statusCode = 500;
-                                res.end(JSON.stringify({ error: 'Server error' }));
-                                throw err;
-                            } else {
-                                jwt.sign({ username: body.username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
-                                    if (err) {
-                                        console.error(`Error creating JWT token`);
-                                        console.error(err);
-                                        res.end(JSON.stringify({}));
-                                    } else {
-                                        res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
-                                        res.end(JSON.stringify({ redirect_url: '/boards.html' }));
-                                    };
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    } else if (method === "POST" && url === "/api/login") {
-        processRequestBody(req, (err, body) => {
-            if (err) {
-                res.statusCode = 500;
-                res.end(JSON.stringify({ error: 'Server error' }));
-                console.error('Error processing request body');
-                console.error(err);
-            } else {
-                getUser(body.username, (err, user) => {
-                    if (err) {
-                        res.statusCode = 500;
-                        res.end(JSON.stringify({ error: 'Server error' }));
-                        throw err;
-                    } else if (!user) {
-                        res.statusCode = 400;
-                        res.end(JSON.stringify({ error: 'Incorrect username/password' }));
-                    } else {
-                        bcrypt.compare(body.password, user.password, (err, matched) => {
-                            if (err) {
-                                res.statusCode = 500;
-                                res.end(JSON.stringify({ error: 'Server error' }));
+    });
 
-                                console.error('Error comparing passwords');
-                                console.error(err);
-                            } else if (!matched) {
-                                res.statusCode = 400;
-                                res.end(JSON.stringify({ error: 'Incorrect username/password' }));
-                            } else {
-                                jwt.sign({ username: body.username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
-                                    if (err) {
-                                        res.statusCode = 500;
-                                        res.end(JSON.stringify({ error: 'Server error' }));
+    function continueHandlingRequest() {
+        if (is_req_for_static_file) {
+            sendFile(`./static${url}`, res);
+        } else if (method === "POST" && url === "/api/register") {
+            getUser(req.body.username, (err, user) => {
+                if (err) {
+                    res.statusCode = 500;
+                    res.end(JSON.stringify({ error: 'Server error' }));
+                    throw err;
+                } else if (user) {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({ error: 'Username already taken' }));
+                } else {
+                    createUser(req.body.username, req.body.password, err => {
+                        if (err) {
+                            res.statusCode = 500;
+                            res.end(JSON.stringify({ error: 'Server error' }));
+                            throw err;
+                        } else {
+                            jwt.sign({ username: req.body.username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
+                                if (err) {
+                                    console.error(`Error creating JWT token`);
+                                    console.error(err);
+                                    res.end(JSON.stringify({}));
+                                } else {
+                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
+                                    res.end(JSON.stringify({ redirect_url: '/boards.html' }));
+                                };
+                            });
+                        }
+                    });
+                }
+            });
+        } else if (method === "POST" && url === "/api/login") {
+            getUser(req.body.username, (err, user) => {
+                if (err) {
+                    res.statusCode = 500;
+                    res.end(JSON.stringify({ error: 'Server error' }));
+                    throw err;
+                } else if (!user) {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({ error: 'Incorrect username/password' }));
+                } else {
+                    bcrypt.compare(req.body.password, user.password, (err, matched) => {
+                        if (err) {
+                            res.statusCode = 500;
+                            res.end(JSON.stringify({ error: 'Server error' }));
 
-                                        console.error(`Error creating JWT token`);
-                                        console.error(err);
-                                    } else {
-                                        res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
-                                        res.end(JSON.stringify({ redirect_url: '/boards.html' }));
-                                    };
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
+                            console.error('Error comparing passwords');
+                            console.error(err);
+                        } else if (!matched) {
+                            res.statusCode = 400;
+                            res.end(JSON.stringify({ error: 'Incorrect username/password' }));
+                        } else {
+                            jwt.sign({ username: req.body.username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
+                                if (err) {
+                                    res.statusCode = 500;
+                                    res.end(JSON.stringify({ error: 'Server error' }));
+
+                                    console.error(`Error creating JWT token`);
+                                    console.error(err);
+                                } else {
+                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
+                                    res.end(JSON.stringify({ redirect_url: '/boards.html' }));
+                                };
+                            });
+                        }
+                    });
+                }
+            });
+        }
     }
-}).listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+}
 
 function sendFile(filename, res) {
     fs.readFile(filename, 'utf8', (err, data) => {
@@ -181,6 +187,12 @@ function createUser(username, password, cb) {
         if (err) cb(err);
         else collection.insertMany([{ username: username, password: hashed_p, boards: [] }], cb);
     });
+}
+
+function checkAuthenticated(req, cb) {
+    const token = extractCookieVal(req.headers.cookie, 'token');
+    if (!token) process.nextTick(() => cb(null, false));
+    else jwt.verify(token, SECRET_KEY, cb);
 }
 
 function extractCookieVal(cookie, key) {
