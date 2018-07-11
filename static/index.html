@@ -20,7 +20,7 @@
     </header>
 
     <main>
-        <section id="register_form">
+        <section id="register_form" style="display: none">
             <h1>Register</h1>
             <form name="register">
                 <div class="input-group">
@@ -49,7 +49,7 @@
             </p>
         </section>
 
-        <section id="login_form" style="display: none">
+        <section id="login_form">
             <h1>Login</h1>
             <form name="login">
 
@@ -83,7 +83,7 @@
         const REGISTRATION_API_URL = '/api/register';
         const LOGIN_API_URL = '/api/login';
 
-        let cur_section = reg_section;
+        let cur_section = login_section;
 
         document.querySelectorAll('span.toggle-form').forEach(elem => {
             elem.addEventListener('click', toggleForms);
