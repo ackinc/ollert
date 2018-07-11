@@ -81,6 +81,7 @@
         const login_section = document.querySelector('section#login_form');
 
         const REGISTRATION_API_URL = '/api/register';
+        const LOGIN_API_URL = '/api/login';
 
         let cur_section = reg_section;
 
@@ -125,8 +126,30 @@
         login_section.querySelector('form').addEventListener('submit', function (e) {
             e.preventDefault();
 
+            this.querySelector('.info').innerHTML = ``;
             this.querySelector('.error').innerHTML = ``;
-            alert('Success!');
+
+            const username = this.querySelector('input[name="username"]').value;
+            const pass = this.querySelector('input[name="password"]').value;
+
+            fetch(LOGIN_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: pass })
+            })
+                .then(res => res.json())
+                .then(body => {
+                    if (body.error) {
+                        this.querySelector('.error').innerHTML = body.error;
+                    } else if (body.redirect_url) {
+                        document.location.replace(body.redirect_url);
+                    } else {
+                        document.location.replace('./boards.html');
+                    }
+                })
+                .catch(err => {
+                    this.querySelector('.error').innerHTML = `Network error.`;
+                });
         });
 
         function toggleForms() {

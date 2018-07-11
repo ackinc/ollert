@@ -81,9 +81,7 @@ http.createServer((req, res) => {
                                         res.end(JSON.stringify({}));
                                     } else {
                                         res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
-                                        res.end(JSON.stringify({
-                                            redirect_url: '/boards.html'
-                                        }));
+                                        res.end(JSON.stringify({ redirect_url: '/boards.html' }));
                                     };
                                 });
                             }
@@ -109,14 +107,14 @@ http.createServer((req, res) => {
                         res.statusCode = 400;
                         res.end(JSON.stringify({ error: 'Incorrect username/password' }));
                     } else {
-                        bcrypt.compare(body.password, user.password, (err, res) => {
+                        bcrypt.compare(body.password, user.password, (err, matched) => {
                             if (err) {
                                 res.statusCode = 500;
                                 res.end(JSON.stringify({ error: 'Server error' }));
 
                                 console.error('Error comparing passwords');
                                 console.error(err);
-                            } else if (!res) {
+                            } else if (!matched) {
                                 res.statusCode = 400;
                                 res.end(JSON.stringify({ error: 'Incorrect username/password' }));
                             } else {
@@ -129,9 +127,7 @@ http.createServer((req, res) => {
                                         console.error(err);
                                     } else {
                                         res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
-                                        res.end(JSON.stringify({
-                                            redirect_url: '/boards.html'
-                                        }));
+                                        res.end(JSON.stringify({ redirect_url: '/boards.html' }));
                                     };
                                 });
                             }
