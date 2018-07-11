@@ -59,7 +59,7 @@ http.createServer((req, res) => {
                 console.error('Error processing request body');
                 console.error(err);
             } else {
-                checkUsernameInUse(body.username, (err, user) => {
+                getUser(body.username, (err, user) => {
                     if (err) {
                         res.statusCode = 500;
                         res.end(JSON.stringify({ error: 'Server error' }));
@@ -79,6 +79,54 @@ http.createServer((req, res) => {
                                         console.error(`Error creating JWT token`);
                                         console.error(err);
                                         res.end(JSON.stringify({}));
+                                    } else {
+                                        res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
+                                        res.end(JSON.stringify({
+                                            redirect_url: '/boards.html'
+                                        }));
+                                    };
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    } else if (method === "POST" && url === "/api/login") {
+        processRequestBody(req, (err, body) => {
+            if (err) {
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: 'Server error' }));
+                console.error('Error processing request body');
+                console.error(err);
+            } else {
+                getUser(body.username, (err, user) => {
+                    if (err) {
+                        res.statusCode = 500;
+                        res.end(JSON.stringify({ error: 'Server error' }));
+                        throw err;
+                    } else if (!user) {
+                        res.statusCode = 400;
+                        res.end(JSON.stringify({ error: 'Incorrect username/password' }));
+                    } else {
+                        bcrypt.compare(body.password, user.password, (err, res) => {
+                            if (err) {
+                                res.statusCode = 500;
+                                res.end(JSON.stringify({ error: 'Server error' }));
+
+                                console.error('Error comparing passwords');
+                                console.error(err);
+                            } else if (!res) {
+                                res.statusCode = 400;
+                                res.end(JSON.stringify({ error: 'Incorrect username/password' }));
+                            } else {
+                                jwt.sign({ username: body.username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
+                                    if (err) {
+                                        res.statusCode = 500;
+                                        res.end(JSON.stringify({ error: 'Server error' }));
+
+                                        console.error(`Error creating JWT token`);
+                                        console.error(err);
                                     } else {
                                         res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
                                         res.end(JSON.stringify({
@@ -121,7 +169,7 @@ function processRequestBody(req, cb) {
     });
 }
 
-function checkUsernameInUse(username, cb) {
+function getUser(username, cb) {
     const collection = db.collection('users');
     collection.find({ username: username }).toArray((err, users) => {
         if (err) cb(err);
