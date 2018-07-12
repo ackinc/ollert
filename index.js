@@ -3,9 +3,11 @@ const fs = require('fs');
 const http = require('http');
 const jwt = require('jsonwebtoken');
 const mongo_client = require('mongodb').MongoClient;
+const { OAuth2Client } = require('google-auth-library');
 const path = require('path');
 
 const async = require('./libs/async');
+const random = require('./libs/random');
 
 const PASSWORD_SALT_ROUNDS = 10;
 const PORT = 8000;
@@ -14,6 +16,9 @@ const SECRET_KEY = fs.readFileSync('./secret_key.txt');
 const URLS_REQUIRING_AUTHENTICATION = [
     '/boards.html'
 ];
+
+const GOOGLE_CLIENT_ID = '396738301585-h6sjke032j2nlvn6gc2d41so8d2ins53.apps.googleusercontent.com';
+const google_auth_client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 const MONGO_URL = 'mongodb://localhost:27017';
 const MONGO_DBNAME = 'trello-clone'
@@ -110,6 +115,8 @@ function handleRequest(req, res) {
                 }
             });
         } else if (method === "POST" && url === "/api/login") {
+            if (req.body.provider === 'google') return loginWithGoogle(req.body.token, res);
+
             getUser(req.body.username, (err, user) => {
                 if (err) {
                     res.statusCode = 500;
@@ -225,4 +232,33 @@ function extractCookieVal(cookie, key) {
 
     if (tmp.length === 0) return false;
     else return tmp[0][1];
+}
+
+function loginWithGoogle(token, res) {
+    google_auth_client.verifyIdToken({ idToken: token, audience: GOOGLE_CLIENT_ID }, (err, ticket) => {
+        if (err) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: 'Server error' }));
+            console.error(err);
+        } else {
+            const username = `g_${ticket.getPayload().sub}`;
+
+            jwt.sign({ username: username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
+                if (err) {
+                    res.statusCode = 500;
+                    res.end(JSON.stringify({ error: 'Server error' }));
+
+                    console.error(`Error creating JWT token`);
+                    console.error(err);
+                } else {
+                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
+                    res.end(JSON.stringify({ redirect_url: '/boards.html' }));
+                };
+            });
+
+            // WARNING: OK to ignore DUP_KEY errors below,
+            //            but what about other kinds of DB errors?
+            createUser(username, random.randomString(12), function () { });
+        }
+    });
 }

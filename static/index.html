@@ -4,16 +4,14 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="google-signin-scope" content="profile email">
-    <meta name="google-signin-client_id" content="396738301585-h6sjke032j2nlvn6gc2d41so8d2ins53.apps.googleusercontent.com">
-
     <title>Trello Clone</title>
 
     <link rel="stylesheet" href="./css/reset.css" />
     <link rel="stylesheet" href="./css/global.css" />
     <link rel="stylesheet" href="./css/index.css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
 
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://apis.google.com/js/api:client.js"></script>
 </head>
 
 <body>
@@ -187,6 +185,41 @@
             cur_section = other_section;
             cur_section.querySelector('input').focus();
         }
+    </script>
+
+    <script>
+        gapi.load('auth2', function () {
+            // Retrieve the singleton for the GoogleAuth library and set up the client.
+            auth2 = gapi.auth2.init({
+                client_id: '396738301585-h6sjke032j2nlvn6gc2d41so8d2ins53.apps.googleusercontent.com',
+                cookiepolicy: 'single_host_origin',
+                // Request scopes in addition to 'profile' and 'email'
+                // scope: 'additional_scope'
+            });
+            document.querySelectorAll('.btn-google').forEach(elem => {
+                auth2.attachClickHandler(elem, {}, googleUser => {
+                    const token = googleUser.getAuthResponse().id_token;
+                    fetch(LOGIN_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ provider: 'google', token: token })
+                    })
+                        .then(res => res.json())
+                        .then(body => {
+                            if (body.error) {
+                                cur_section.querySelector('.error').innerHTML = body.error;
+                            } else if (body.redirect_url) {
+                                document.location.replace(body.redirect_url);
+                            } else {
+                                document.location.replace('./boards.html');
+                            }
+                        })
+                        .catch(err => {
+                            cur_section.querySelector('.error').innerHTML = `Network error.`;
+                        });
+                });
+            });
+        });
     </script>
 </body>
 
