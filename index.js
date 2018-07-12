@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const FB = require('fb');
 const fs = require('fs');
 const http = require('http');
 const jwt = require('jsonwebtoken');
@@ -16,6 +18,8 @@ const SECRET_KEY = fs.readFileSync('./secret_key.txt');
 const URLS_REQUIRING_AUTHENTICATION = [
     '/boards.html'
 ];
+
+const FB_APP_SECRET = fs.readFileSync('./fb_app_secret.txt');
 
 const GOOGLE_CLIENT_ID = '396738301585-h6sjke032j2nlvn6gc2d41so8d2ins53.apps.googleusercontent.com';
 const google_auth_client = new OAuth2Client(GOOGLE_CLIENT_ID);
@@ -116,6 +120,7 @@ function handleRequest(req, res) {
             });
         } else if (method === "POST" && url === "/api/login") {
             if (req.body.provider === 'google') return loginWithGoogle(req.body.token, res);
+            else if (req.body.provider === 'facebook') return loginWithFacebook(req.body.token, res);
 
             getUser(req.body.username, (err, user) => {
                 if (err) {
@@ -242,6 +247,38 @@ function loginWithGoogle(token, res) {
             console.error(err);
         } else {
             const username = ticket.getPayload().email;
+
+            jwt.sign({ username: username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
+                if (err) {
+                    res.statusCode = 500;
+                    res.end(JSON.stringify({ error: 'Server error' }));
+
+                    console.error(`Error creating JWT token`);
+                    console.error(err);
+                } else {
+                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
+                    res.end(JSON.stringify({ redirect_url: '/boards.html' }));
+                };
+            });
+
+            // WARNING: OK to ignore DUP_KEY errors below,
+            //            but what about other kinds of DB errors?
+            createUser(username, random.randomString(12), function () { });
+        }
+    });
+}
+
+function loginWithFacebook(token, res) {
+    const appsecret_proof = crypto.createHmac('sha256', FB_APP_SECRET)
+        .update(token)
+        .digest('hex');
+    FB.api('/me', { access_token: token, appsecret_proof: appsecret_proof, fields: 'email' }, response => {
+        if (response.error) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: 'Server error' }));
+            console.error(err);
+        } else {
+            const username = response.email;
 
             jwt.sign({ username: username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
                 if (err) {

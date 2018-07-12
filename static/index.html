@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="./css/global.css" />
     <link rel="stylesheet" href="./css/index.css" />
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
-
-    <script src="https://apis.google.com/js/api:client.js"></script>
 </head>
 
 <body>
@@ -52,8 +50,11 @@
 
                 <div class="social-login right">
                     <h1>Sign up with</h1>
-                    <div class="btn-google">
-                        <img src="./images/btn_google_light_normal_ios.png" /> Google
+                    <div class="btn-social-login btn-google">
+                        <img src="./images/google_logo.png" /> Google
+                    </div>
+                    <div class="btn-social-login btn-facebook">
+                        <img src="./images/fb_logo_color.png" /> Facebook
                     </div>
                 </div>
             </div>
@@ -88,8 +89,11 @@
 
                 <div class="social-login right">
                     <h1>Sign in with</h1>
-                    <div class="btn-google">
-                        <img src="./images/btn_google_light_normal_ios.png" /> Google
+                    <div class="btn-social-login btn-google">
+                        <img src="./images/google_logo.png" /> Google
+                    </div>
+                    <div class="btn-social-login btn-facebook">
+                        <img src="./images/fb_logo_color.png" /> Facebook
                     </div>
                 </div>
 
@@ -187,6 +191,9 @@
         }
     </script>
 
+
+
+    <script src="https://apis.google.com/js/api:client.js"></script>
     <script>
         gapi.load('auth2', function () {
             // Retrieve the singleton for the GoogleAuth library and set up the client.
@@ -220,6 +227,50 @@
                 });
             });
         });
+    </script>
+
+
+    <script src="https://connect.facebook.net/en_US/sdk.js"></script>
+    <script>
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '1787740664771115',
+                cookie: true,  // enable cookies to allow the server to access the session
+                xfbml: true,  // parse social plugins on this page
+                version: 'v3.0' // use graph api version 3.0
+            });
+
+            document.querySelectorAll('.btn-facebook').forEach(elem => {
+                elem.addEventListener('click', function (e) {
+                    FB.login(response => {
+                        if (response.status !== 'connected') {
+                            cur_section.querySelector('.error').innerHTML = `Authentication error.`;
+                            return;
+                        };
+
+                        const token = response.authResponse.accessToken;
+                        fetch(LOGIN_API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ provider: 'facebook', token: token })
+                        })
+                            .then(res => res.json())
+                            .then(body => {
+                                if (body.error) {
+                                    cur_section.querySelector('.error').innerHTML = body.error;
+                                } else if (body.redirect_url) {
+                                    document.location.replace(body.redirect_url);
+                                } else {
+                                    document.location.replace('./boards.html');
+                                }
+                            })
+                            .catch(err => {
+                                cur_section.querySelector('.error').innerHTML = `Network error.`;
+                            });
+                    }, { scope: 'email' });
+                });
+            });
+        }
     </script>
 </body>
 

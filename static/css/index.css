@@ -113,28 +113,36 @@ section div.social-login {
 section div.social-login h1 {
     color: rgba(0, 0, 0, 0.6);
     font-size: 1em;
+    margin-bottom: 15px;
 }
 
-.social-login .btn-google {
+.social-login .btn-social-login {
     border-radius: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    
-    color: rgba(0, 0, 0, 0.6);
-    
+
     display: flex;
     align-items: center;
     
-    font-family: Roboto;
-    font-size: 0.8em;
-    font-weight: bold;
+    margin-bottom: 15px;
     
     height: 40px;
     width: 75%;
 }
 
+.social-login .btn-social-login:hover {
+    cursor: pointer;
+}
+
+.social-login .btn-google {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    color: rgba(0, 0, 0, 0.6);
+    
+    font-family: Roboto;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
 .social-login .btn-google:hover {
     box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
 }
 
 .social-login .btn-google img {
@@ -142,6 +150,24 @@ section div.social-login h1 {
     margin-right: 18px;
     
     transform: scale(1.2);
+}
+
+.social-login .btn-facebook {
+    background-color: #4267b2;
+    color: white;
+    
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.social-login .btn-facebook:hover {
+    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.2);
+}
+
+.social-login .btn-facebook img {
+    transform: scale(0.6) translateX(-5px) translateY(-2px);
+    margin-left: 18px;
+    margin-right: 18px;
 }
 
 section p {

@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "bcrypt": "^3.0.0",
+    "fb": "^2.0.0",
     "google-auth-library": "^1.6.1",
     "jsonwebtoken": "^8.3.0",
     "mongodb": "^3.1.1"
