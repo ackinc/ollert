@@ -214,7 +214,7 @@ function createUser(username, password, cb) {
 
     bcrypt.hash(password, PASSWORD_SALT_ROUNDS, (err, hashed_p) => {
         if (err) cb(err);
-        else collection.insertMany([{ username: username, password: hashed_p, boards: [] }], cb);
+        else collection.insertOne({ username: username, password: hashed_p, boards: [] }, cb);
     });
 }
 
