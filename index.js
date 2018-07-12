@@ -151,18 +151,35 @@ function handleRequest(req, res) {
 }
 
 function sendFile(filename, res) {
-    fs.readFile(filename, 'utf8', (err, data) => {
+    fs.readFile(filename, (err, data) => {
         if (err && err.code === 'ENOENT') {
             res.statusCode = 404;
             res.end();
         } else if (err) {
             throw err;
         } else {
-            const ext = path.extname(filename).substr(1); // remove the leading '.'
-            res.setHeader('Content-type', ext === 'js' ? 'application/javascript' : `text/${ext}`);
+            res.setHeader('Content-type', getMIMEType(filename));
             res.end(data);
         }
     });
+}
+
+function getMIMEType(filename) {
+    const ext = path.extname(filename).substr(1); // remove the leading '.'
+    switch (ext) {
+        case 'js':
+            return `application/javascript`;
+        case 'html':
+        case 'css':
+            return `text/${ext}`;
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+        case 'gif':
+            return `image/${ext}`;
+        default:
+            throw new Error('Asked for MIME type of file with unrecognized extension');
+    }
 }
 
 function processRequestBody(req, cb) {
