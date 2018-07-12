@@ -241,7 +241,7 @@ function loginWithGoogle(token, res) {
             res.end(JSON.stringify({ error: 'Server error' }));
             console.error(err);
         } else {
-            const username = `g_${ticket.getPayload().sub}`;
+            const username = ticket.getPayload().email;
 
             jwt.sign({ username: username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
                 if (err) {
