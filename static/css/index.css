@@ -7,58 +7,84 @@ section {
     flex-direction: column;
     align-items: center;
 
-    margin: 80px auto;
+    margin: 70px auto;
     padding: 20px 0;
     width: 40%;
 }
 
 section h1 {
     font-size: 2em;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     text-align: center;
     text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.1);
 }
 
-section form {
-    margin: 0px 0 20px 0;
-    min-width: 75%;
+.split {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
 
-    text-align: center;
+.split .left {
+    width: 50%;
+    z-index: 0;
+}
+
+.split .separator {
+    background: linear-gradient(white 5%, rgba(0, 0, 0, 0), white 95%);
+
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%), translateY(-50%);
+    
+    height: 100%;
+    width: 20px;
+    z-index: 1;
+}
+
+.split .right {
+    border-left: 1px solid darkgray;
+    width: 50%;
+    z-index: 0;
+}
+
+section form {
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 section form .input-group {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-
     margin-bottom: 8px;
 }
 
 section form .input-group label {
     color: rgba(0, 0, 0, 0.6);
-    flex-grow: 1;
-    margin-right: 10px;
-    text-align: right;
+    display: block;
+    font-size: 0.7em;
+    margin-bottom: 2px;
 }
 
-section form input {
+section form .input-group input {
     height: 40px;
     background-color: rgba(0, 0, 0, 0.05);
     border: 0px;
     border-radius: 5px;
     box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.5);
-    padding-left: 10px;
+    padding-left: 5px;
+    width: 95%;
 }
 
 section form .info {
     color: yellowgreen;
     font-size: 0.8em;
+    text-align: center;
 }
 
 section form .error {
     color: red;
     font-size: 0.8em;
+    text-align: center;
 }
 
 section form button {
@@ -71,17 +97,53 @@ section form button {
     margin-top: 10px;
 
     height: 40px;
-    width: 200px;
+    width: 95%;
 }
 
 section form button:hover {
     background-color: darkgreen;
+}
+
+section div.social-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+section div.social-login h1 {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 1em;
+}
+
+.social-login .btn-google {
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    
+    color: rgba(0, 0, 0, 0.6);
+    
+    display: flex;
+    align-items: center;
+    
+    font-size: 0.9em;    
+    height: 40px;
+    width: 75%;
+}
+
+.social-login .btn-google:hover {
+    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.2);
     cursor: pointer;
+}
+
+.social-login .btn-google img {
+    margin-left: 18px;
+    margin-right: 18px;
+    
+    transform: scale(1.2);
 }
 
 section p {
     font-size: 0.8em;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 section p span.toggle-form {

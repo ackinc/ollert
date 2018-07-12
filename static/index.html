@@ -4,11 +4,16 @@
 
 <head>
     <meta charset="utf-8" />
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="396738301585-h6sjke032j2nlvn6gc2d41so8d2ins53.apps.googleusercontent.com">
+
     <title>Trello Clone</title>
 
     <link rel="stylesheet" href="./css/reset.css" />
     <link rel="stylesheet" href="./css/global.css" />
     <link rel="stylesheet" href="./css/index.css" />
+
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 
 <body>
@@ -22,27 +27,38 @@
     <main>
         <section id="register_form" style="display: none">
             <h1>Register</h1>
-            <form name="register">
-                <div class="input-group">
-                    <label>Username</label>
-                    <input type="text" name="username" autofocus required />
+            <div class="split">
+                <form name="register" class="left">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" name="username" autofocus required />
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" name="password" required />
+                    </div>
+
+                    <div class="input-group">
+                        <label>Confirm password</label>
+                        <input type="password" name="c_password" required />
+                    </div>
+
+                    <div class="info"></div>
+                    <div class="error"></div>
+
+                    <button type="submit">Sign me up!</button>
+                </form>
+
+                <div class="separator"></div>
+
+                <div class="social-login right">
+                    <h1>Sign up with</h1>
+                    <div class="btn-google">
+                        <img src="./images/btn_google_light_normal_ios.png" /> Google
+                    </div>
                 </div>
-
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" name="password" required />
-                </div>
-
-                <div class="input-group">
-                    <label>Confirm password</label>
-                    <input type="password" name="c_password" required />
-                </div>
-
-                <div class="info"></div>
-                <div class="error"></div>
-
-                <button type="submit">Sign me up!</button>
-            </form>
+            </div>
 
             <p>Already registered? Sign in
                 <span class="toggle-form" data-show="login_form">here</span>
@@ -51,23 +67,35 @@
 
         <section id="login_form">
             <h1>Login</h1>
-            <form name="login">
+            <div class="split">
+                <form name="login" class="left">
 
-                <div class="input-group">
-                    <label>Username</label>
-                    <input type="text" name="username" required />
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" name="username" required />
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" name="password" required />
+                    </div>
+
+                    <div class="info"></div>
+                    <div class="error"></div>
+
+                    <button type="submit">Sign me in!</button>
+                </form>
+
+                <div class="separator"></div>
+
+                <div class="social-login right">
+                    <h1>Sign in with</h1>
+                    <div class="btn-google">
+                        <img src="./images/btn_google_light_normal_ios.png" /> Google
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" name="password" required />
-                </div>
-
-                <div class="info"></div>
-                <div class="error"></div>
-
-                <button type="submit">Sign me in!</button>
-            </form>
+            </div>
 
             <p>New user? Sign up
                 <span class="toggle-form" data-show="register_form">here</span>
