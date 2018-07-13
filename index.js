@@ -9,33 +9,24 @@ const { OAuth2Client } = require('google-auth-library');
 const path = require('path');
 
 const async = require('./libs/async');
+const config = require('./config');
 const random = require('./libs/random');
 
-const PASSWORD_SALT_ROUNDS = 10;
-const PORT = 8000;
-const JWT_EXPIRY = 60 * 60 * 24 * 2; // 2 days
-const SECRET_KEY = fs.readFileSync('./secret_key.txt');
 const URLS_REQUIRING_AUTHENTICATION = [
     '/boards.html'
 ];
 
-const FB_APP_SECRET = fs.readFileSync('./fb_app_secret.txt');
+const google_auth_client = new OAuth2Client(config.google.client_id);
 
-const GOOGLE_CLIENT_ID = '396738301585-h6sjke032j2nlvn6gc2d41so8d2ins53.apps.googleusercontent.com';
-const google_auth_client = new OAuth2Client(GOOGLE_CLIENT_ID);
-
-const MONGO_URL = 'mongodb://localhost:27017';
-const MONGO_DBNAME = 'trello-clone'
 let db;
-
-mongo_client.connect(MONGO_URL, { useNewUrlParser: true }, (err, client) => {
+mongo_client.connect(config.db.url, { useNewUrlParser: true }, (err, client) => {
     if (err) throw err;
-    db = client.db(MONGO_DBNAME);
-    console.log(`Connected to database at ${MONGO_URL}/${MONGO_DBNAME}`);
+    db = client.db(config.db.dbname);
+    console.log(`Connected to database at ${config.db.url}/${config.db.dbname}`);
 });
 
 http.createServer(handleRequest)
-    .listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+    .listen(config.port, () => console.log(`Server is running on port ${config.port}`));
 
 
 
@@ -104,13 +95,13 @@ function handleRequest(req, res) {
                             res.end(JSON.stringify({ error: 'Server error' }));
                             throw err;
                         } else {
-                            jwt.sign({ username: req.body.username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
+                            jwt.sign({ username: req.body.username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
                                 if (err) {
                                     console.error(`Error creating JWT token`);
                                     console.error(err);
                                     res.end(JSON.stringify({}));
                                 } else {
-                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
+                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
                                     res.end(JSON.stringify({ redirect_url: '/boards.html' }));
                                 };
                             });
@@ -142,7 +133,7 @@ function handleRequest(req, res) {
                             res.statusCode = 400;
                             res.end(JSON.stringify({ error: 'Incorrect username/password' }));
                         } else {
-                            jwt.sign({ username: req.body.username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
+                            jwt.sign({ username: req.body.username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
                                 if (err) {
                                     res.statusCode = 500;
                                     res.end(JSON.stringify({ error: 'Server error' }));
@@ -150,7 +141,7 @@ function handleRequest(req, res) {
                                     console.error(`Error creating JWT token`);
                                     console.error(err);
                                 } else {
-                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
+                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
                                     res.end(JSON.stringify({ redirect_url: '/boards.html' }));
                                 };
                             });
@@ -217,7 +208,7 @@ function getUser(username, cb) {
 function createUser(username, password, cb) {
     const collection = db.collection('users');
 
-    bcrypt.hash(password, PASSWORD_SALT_ROUNDS, (err, hashed_p) => {
+    bcrypt.hash(password, config.bcrypt.rounds, (err, hashed_p) => {
         if (err) cb(err);
         else collection.insertOne({ username: username, password: hashed_p, boards: [] }, cb);
     });
@@ -226,7 +217,7 @@ function createUser(username, password, cb) {
 function checkAuthenticated(req, cb) {
     const token = extractCookieVal(req.headers.cookie, 'token');
     if (!token) process.nextTick(() => cb(null, false));
-    else jwt.verify(token, SECRET_KEY, cb);
+    else jwt.verify(token, config.jsonwebtoken.key, cb);
 }
 
 function extractCookieVal(cookie, key) {
@@ -240,7 +231,7 @@ function extractCookieVal(cookie, key) {
 }
 
 function loginWithGoogle(token, res) {
-    google_auth_client.verifyIdToken({ idToken: token, audience: GOOGLE_CLIENT_ID }, (err, ticket) => {
+    google_auth_client.verifyIdToken({ idToken: token, audience: config.google.client_id }, (err, ticket) => {
         if (err) {
             res.statusCode = 500;
             res.end(JSON.stringify({ error: 'Server error' }));
@@ -248,7 +239,7 @@ function loginWithGoogle(token, res) {
         } else {
             const username = ticket.getPayload().email;
 
-            jwt.sign({ username: username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
+            jwt.sign({ username: username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
                 if (err) {
                     res.statusCode = 500;
                     res.end(JSON.stringify({ error: 'Server error' }));
@@ -256,7 +247,7 @@ function loginWithGoogle(token, res) {
                     console.error(`Error creating JWT token`);
                     console.error(err);
                 } else {
-                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
+                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
                     res.end(JSON.stringify({ redirect_url: '/boards.html' }));
                 };
             });
@@ -269,7 +260,7 @@ function loginWithGoogle(token, res) {
 }
 
 function loginWithFacebook(token, res) {
-    const appsecret_proof = crypto.createHmac('sha256', FB_APP_SECRET)
+    const appsecret_proof = crypto.createHmac('sha256', config.facebook.app_secret)
         .update(token)
         .digest('hex');
     FB.api('/me', { access_token: token, appsecret_proof: appsecret_proof, fields: 'email' }, response => {
@@ -280,7 +271,7 @@ function loginWithFacebook(token, res) {
         } else {
             const username = response.email;
 
-            jwt.sign({ username: username }, SECRET_KEY, { expiresIn: JWT_EXPIRY }, (err, token) => {
+            jwt.sign({ username: username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
                 if (err) {
                     res.statusCode = 500;
                     res.end(JSON.stringify({ error: 'Server error' }));
@@ -288,7 +279,7 @@ function loginWithFacebook(token, res) {
                     console.error(`Error creating JWT token`);
                     console.error(err);
                 } else {
-                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${JWT_EXPIRY}; Path=/`)
+                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
                     res.end(JSON.stringify({ redirect_url: '/boards.html' }));
                 };
             });
