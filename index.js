@@ -112,43 +112,7 @@ function handleRequest(req, res) {
         } else if (method === "POST" && url === "/api/login") {
             if (req.body.provider === 'google') return loginWithGoogle(req.body.token, res);
             else if (req.body.provider === 'facebook') return loginWithFacebook(req.body.token, res);
-
-            getUser(req.body.username, (err, user) => {
-                if (err) {
-                    res.statusCode = 500;
-                    res.end(JSON.stringify({ error: 'Server error' }));
-                    throw err;
-                } else if (!user) {
-                    res.statusCode = 400;
-                    res.end(JSON.stringify({ error: 'Incorrect username/password' }));
-                } else {
-                    bcrypt.compare(req.body.password, user.password, (err, matched) => {
-                        if (err) {
-                            res.statusCode = 500;
-                            res.end(JSON.stringify({ error: 'Server error' }));
-
-                            console.error('Error comparing passwords');
-                            console.error(err);
-                        } else if (!matched) {
-                            res.statusCode = 400;
-                            res.end(JSON.stringify({ error: 'Incorrect username/password' }));
-                        } else {
-                            jwt.sign({ username: req.body.username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
-                                if (err) {
-                                    res.statusCode = 500;
-                                    res.end(JSON.stringify({ error: 'Server error' }));
-
-                                    console.error(`Error creating JWT token`);
-                                    console.error(err);
-                                } else {
-                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
-                                    res.end(JSON.stringify({ redirect_url: '/boards.html' }));
-                                };
-                            });
-                        }
-                    });
-                }
-            });
+            else loginWithPassword(req.body.username, req.body.password, res);
         }
     }
 }
@@ -230,6 +194,24 @@ function extractCookieVal(cookie, key) {
     else return tmp[0][1];
 }
 
+function sendLoginSuccessResponse(payload, res, cb) {
+    if (cb === undefined) cb = function () { };
+    jwt.sign(payload, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
+        if (err) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: 'Server error' }));
+
+            console.error(`Error creating JWT token`);
+            console.error(err);
+            cb(err);
+        } else {
+            res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
+            res.end(JSON.stringify({ redirect_url: '/boards.html' }));
+            cb(null, token);
+        };
+    });
+}
+
 function loginWithGoogle(token, res) {
     google_auth_client.verifyIdToken({ idToken: token, audience: config.google.client_id }, (err, ticket) => {
         if (err) {
@@ -238,19 +220,7 @@ function loginWithGoogle(token, res) {
             console.error(err);
         } else {
             const username = ticket.getPayload().email;
-
-            jwt.sign({ username: username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
-                if (err) {
-                    res.statusCode = 500;
-                    res.end(JSON.stringify({ error: 'Server error' }));
-
-                    console.error(`Error creating JWT token`);
-                    console.error(err);
-                } else {
-                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
-                    res.end(JSON.stringify({ redirect_url: '/boards.html' }));
-                };
-            });
+            sendLoginSuccessResponse({ username: username }, res);
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
@@ -270,23 +240,39 @@ function loginWithFacebook(token, res) {
             console.error(err);
         } else {
             const username = response.email;
-
-            jwt.sign({ username: username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
-                if (err) {
-                    res.statusCode = 500;
-                    res.end(JSON.stringify({ error: 'Server error' }));
-
-                    console.error(`Error creating JWT token`);
-                    console.error(err);
-                } else {
-                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
-                    res.end(JSON.stringify({ redirect_url: '/boards.html' }));
-                };
-            });
+            sendLoginSuccessResponse({ username: username }, res);
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
             createUser(username, random.randomString(12), function () { });
+        }
+    });
+}
+
+function loginWithPassword(username, password, res) {
+    getUser(username, (err, user) => {
+        if (err) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: 'Server error' }));
+            throw err;
+        } else if (!user) {
+            res.statusCode = 400;
+            res.end(JSON.stringify({ error: 'Incorrect username/password' }));
+        } else {
+            bcrypt.compare(password, user.password, (err, matched) => {
+                if (err) {
+                    res.statusCode = 500;
+                    res.end(JSON.stringify({ error: 'Server error' }));
+
+                    console.error('Error comparing passwords');
+                    console.error(err);
+                } else if (!matched) {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({ error: 'Incorrect username/password' }));
+                } else {
+                    sendLoginSuccessResponse({ username: username }, res);
+                }
+            });
         }
     });
 }
