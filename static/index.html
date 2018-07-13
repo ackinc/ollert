@@ -162,24 +162,7 @@
             const username = this.querySelector('input[name="username"]').value;
             const pass = this.querySelector('input[name="password"]').value;
 
-            fetch(LOGIN_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: username, password: pass })
-            })
-                .then(res => res.json())
-                .then(body => {
-                    if (body.error) {
-                        this.querySelector('.error').innerHTML = body.error;
-                    } else if (body.redirect_url) {
-                        document.location.replace(body.redirect_url);
-                    } else {
-                        document.location.replace('./boards.html');
-                    }
-                })
-                .catch(err => {
-                    this.querySelector('.error').innerHTML = `Network error.`;
-                });
+            tryLogin({ username: username, password: pass });
         });
 
         function toggleForms() {
@@ -188,6 +171,33 @@
             cur_section.style.display = "none";
             cur_section = other_section;
             cur_section.querySelector('input').focus();
+        }
+
+        function tryLogin(credentials) {
+            fetch(LOGIN_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(credentials)
+            })
+                .then(res => res.json())
+                .then(body => {
+                    if (body.error) {
+                        // using cur_section instead of login_section here
+                        //   since the user might click on social login buttons in
+                        //   the registration section
+                        cur_section.querySelector('.error').innerHTML = body.error;
+                    } else if (body.redirect_url) {
+                        document.location.replace(body.redirect_url);
+                    } else {
+                        document.location.replace('./boards.html');
+                    }
+                })
+                .catch(err => {
+                    // using cur_section instead of login_section here
+                    //   since the user might click on social login buttons in
+                    //   the registration section
+                    cur_section.querySelector('.error').innerHTML = `Network error.`;
+                });
         }
     </script>
 
@@ -206,24 +216,7 @@
             document.querySelectorAll('.btn-google').forEach(elem => {
                 auth2.attachClickHandler(elem, {}, googleUser => {
                     const token = googleUser.getAuthResponse().id_token;
-                    fetch(LOGIN_API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ provider: 'google', token: token })
-                    })
-                        .then(res => res.json())
-                        .then(body => {
-                            if (body.error) {
-                                cur_section.querySelector('.error').innerHTML = body.error;
-                            } else if (body.redirect_url) {
-                                document.location.replace(body.redirect_url);
-                            } else {
-                                document.location.replace('./boards.html');
-                            }
-                        })
-                        .catch(err => {
-                            cur_section.querySelector('.error').innerHTML = `Network error.`;
-                        });
+                    tryLogin({ provider: 'google', token: token });
                 });
             });
         });
@@ -244,29 +237,12 @@
                 elem.addEventListener('click', function (e) {
                     FB.login(response => {
                         if (response.status !== 'connected') {
-                            cur_section.querySelector('.error').innerHTML = `Authentication error.`;
+                            login_section.querySelector('.error').innerHTML = `Authentication error.`;
                             return;
                         };
 
                         const token = response.authResponse.accessToken;
-                        fetch(LOGIN_API_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ provider: 'facebook', token: token })
-                        })
-                            .then(res => res.json())
-                            .then(body => {
-                                if (body.error) {
-                                    cur_section.querySelector('.error').innerHTML = body.error;
-                                } else if (body.redirect_url) {
-                                    document.location.replace(body.redirect_url);
-                                } else {
-                                    document.location.replace('./boards.html');
-                                }
-                            })
-                            .catch(err => {
-                                cur_section.querySelector('.error').innerHTML = `Network error.`;
-                            });
+                        tryLogin({ provider: 'facebook', token: token });
                     }, { scope: 'email' });
                 });
             });
