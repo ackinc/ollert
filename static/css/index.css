@@ -175,10 +175,11 @@ section p {
     margin-top: 30px;
 }
 
-section p span.toggle-form {
+section p span.change-active-section {
     color: blue;
 }
 
-section p span.toggle-form:hover {
+section p span.change-active-section:hover {
     cursor: pointer;
+    text-decoration: underline;
 }

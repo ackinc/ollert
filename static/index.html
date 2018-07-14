@@ -21,13 +21,13 @@
     </header>
 
     <main>
-        <section id="register_form" style="display: none">
+        <section id="registration_section" class="user-action-section">
             <h1>Register</h1>
             <div class="split">
-                <form name="register" class="left">
+                <form name="registration_form" class="left">
                     <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" name="username" autofocus required />
+                        <label>Email</label>
+                        <input type="email" name="username" autofocus required />
                     </div>
 
                     <div class="input-group">
@@ -60,18 +60,18 @@
             </div>
 
             <p>Already registered? Sign in
-                <span class="toggle-form" data-show="login_form">here</span>
+                <span class="change-active-section" data-show="login_section">here</span>
             </p>
         </section>
 
-        <section id="login_form">
+        <section id="login_section" class="user-action-section">
             <h1>Login</h1>
             <div class="split">
-                <form name="login" class="left">
+                <form name="login_form" class="left">
 
                     <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" name="username" required />
+                        <label>Email</label>
+                        <input type="email" name="username" required />
                     </div>
 
                     <div class="input-group">
@@ -100,26 +100,27 @@
             </div>
 
             <p>New user? Sign up
-                <span class="toggle-form" data-show="register_form">here</span>
+                <span class="change-active-section" data-show="registration_section">here</span>
             </p>
         </section>
     </main>
 
     <script>
-        const main_node = document.querySelector('main');
-        const reg_section = document.querySelector('section#register_form');
-        const login_section = document.querySelector('section#login_form');
-
         const REGISTRATION_API_URL = '/api/register';
         const LOGIN_API_URL = '/api/login';
 
-        let cur_section = login_section;
+        const main_node = document.querySelector('main');
+        const all_sections = document.querySelectorAll('.user-action-section');
+        let cur_section;
+        showSection('login_section');
 
-        document.querySelectorAll('span.toggle-form').forEach(elem => {
-            elem.addEventListener('click', toggleForms);
+        document.querySelectorAll('span.change-active-section').forEach(elem => {
+            elem.addEventListener('click', function (e) {
+                showSection(this.dataset.show);
+            });
         });
 
-        reg_section.querySelector('form').addEventListener('submit', function (e) {
+        document.querySelector('form[name="registration_form"]').addEventListener('submit', function (e) {
             e.preventDefault();
 
             this.querySelector('.info').innerHTML = ``;
@@ -153,7 +154,7 @@
                 });
         });
 
-        login_section.querySelector('form').addEventListener('submit', function (e) {
+        document.querySelector('form[name="login_form"]').addEventListener('submit', function (e) {
             e.preventDefault();
 
             this.querySelector('.info').innerHTML = ``;
@@ -165,12 +166,17 @@
             tryLogin({ username: username, password: pass });
         });
 
-        function toggleForms() {
-            const other_section = cur_section === reg_section ? login_section : reg_section;
-            other_section.style.display = cur_section.style.display;
-            cur_section.style.display = "none";
-            cur_section = other_section;
-            cur_section.querySelector('input').focus();
+        // displays the section having id <id>,while hiding other sections
+        function showSection(id) {
+            all_sections.forEach(section => {
+                if (section.id === id) {
+                    section.classList.remove('hide');
+                    section.querySelector('input').focus();
+                    cur_section = section;
+                } else {
+                    section.classList.add('hide');
+                }
+            });
         }
 
         function tryLogin(credentials) {
@@ -180,24 +186,20 @@
                 body: JSON.stringify(credentials)
             })
                 .then(res => res.json())
-                .then(body => {
-                    if (body.error) {
-                        // using cur_section instead of login_section here
-                        //   since the user might click on social login buttons in
-                        //   the registration section
-                        cur_section.querySelector('.error').innerHTML = body.error;
-                    } else if (body.redirect_url) {
-                        document.location.replace(body.redirect_url);
-                    } else {
-                        document.location.replace('./boards.html');
-                    }
-                })
+                .then(handleLoginResponse)
                 .catch(err => {
-                    // using cur_section instead of login_section here
-                    //   since the user might click on social login buttons in
-                    //   the registration section
                     cur_section.querySelector('.error').innerHTML = `Network error.`;
                 });
+        }
+
+        function handleLoginResponse(body) {
+            if (body.error) {
+                cur_section.querySelector('.error').innerHTML = body.error;
+            } else if (body.redirect_url) {
+                document.location.replace(body.redirect_url);
+            } else {
+                document.location.replace('./boards.html');
+            }
         }
     </script>
 
@@ -237,7 +239,7 @@
                 elem.addEventListener('click', function (e) {
                     FB.login(response => {
                         if (response.status !== 'connected') {
-                            login_section.querySelector('.error').innerHTML = `Authentication error.`;
+                            cur_section.querySelector('.error').innerHTML = `Authentication error.`;
                             return;
                         };
 

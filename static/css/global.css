@@ -57,3 +57,7 @@ header h1 a:hover {
 header h2 {
     text-align: center;
 }
+
+.hide {
+    display: none;
+}
