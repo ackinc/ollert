@@ -87,9 +87,9 @@ function handleRequest(req, res) {
                     throw err;
                 } else if (user) {
                     res.statusCode = 400;
-                    res.end(JSON.stringify({ error: 'Username already taken' }));
+                    res.end(JSON.stringify({ error: 'USERNAME_TAKEN' }));
                 } else {
-                    createUser(req.body.username, req.body.password, err => {
+                    createUser(req.body.username, req.body.password, false, err => {
                         if (err) {
                             res.statusCode = 500;
                             res.end(JSON.stringify({ error: 'Server error' }));
@@ -169,12 +169,12 @@ function getUser(username, cb) {
     });
 }
 
-function createUser(username, password, cb) {
+function createUser(username, password, verified, cb) {
     const collection = db.collection('users');
 
     bcrypt.hash(password, config.bcrypt.rounds, (err, hashed_p) => {
         if (err) cb(err);
-        else collection.insertOne({ username: username, password: hashed_p, boards: [] }, cb);
+        else collection.insertOne({ username: username, password: hashed_p, verified: verified, boards: [] }, cb);
     });
 }
 
@@ -224,7 +224,7 @@ function loginWithGoogle(token, res) {
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
-            createUser(username, random.randomString(12), function () { });
+            createUser(username, random.randomString(12), true, function () { });
         }
     });
 }
@@ -244,7 +244,7 @@ function loginWithFacebook(token, res) {
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
-            createUser(username, random.randomString(12), function () { });
+            createUser(username, random.randomString(12), true, function () { });
         }
     });
 }
