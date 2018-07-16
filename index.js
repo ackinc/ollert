@@ -46,30 +46,36 @@ function handleRequest(req, res) {
     asynctasks.push(cb => middleware.processRequestQuery(req, cb));
     asynctasks.push(cb => middleware.processRequestCookies(req, cb));
     asynctasks.push(cb => middleware.processRequestBody(req, cb));
-    asynctasks.push(cb => checkAuthenticated(req, cb));
 
-    async.parallel(asynctasks, (err, results) => {
+    async.parallel(asynctasks, err => {
         if (err) {
             res.statusCode = 500;
             res.end(JSON.stringify({ error: 'Server error' }));
 
             console.error(err);
+        } else if (req.cookies.token) {
+            decodeToken(req, err => {
+                if (err || req.decoded === null) {
+                    // bad token, so redirect to home
+                    res.statusCode = 302;
+                    res.setHeader('location', '/');
+                    res.end();
+                } else if (req.url === '/index.html') {
+                    // if an already-logged-in user lands on the home page,
+                    //   redirect him to the boards page
+                    res.statusCode = 302;
+                    res.setHeader('location', '/boards.html');
+                    res.end();
+                } else {
+                    continueHandlingRequest();
+                }
+            });
+        } else if (is_auth_required) {
+            res.statusCode = 302;
+            res.setHeader('location', '/');
+            res.end();
         } else {
-            req.token = results[0];
-
-            if (is_auth_required && !req.token) {
-                res.statusCode = 302;
-                res.setHeader('location', '/');
-                res.end();
-            } else if (url === '/index.html' && req.token) {
-                // if an already-logged-in user lands on the home page,
-                //   redirect him to the boards page
-                res.statusCode = 302;
-                res.setHeader('location', '/boards.html');
-                res.end();
-            } else {
-                continueHandlingRequest();
-            }
+            continueHandlingRequest();
         }
     });
 
@@ -164,10 +170,21 @@ function createUser(username, password, verified, cb) {
     });
 }
 
-function checkAuthenticated(req, cb) {
-    const token = extractCookieVal(req.headers.cookie, 'token');
-    if (!token) process.nextTick(() => cb(null, false));
-    else jwt.verify(token, config.jsonwebtoken.key, cb);
+function decodeToken(req, cb) {
+    const token = req.cookie.token;
+    if (!token) {
+        req.decoded = null;
+        process.nextTick(cb);
+    } else {
+        jwt.verify(token, config.jsonwebtoken.key, (err, decoded) => {
+            if (err) {
+                cb(err);
+            } else {
+                req.decoded = decoded;
+                cb();
+            }
+        });
+    }
 }
 
 function extractCookieVal(cookie, key) {
