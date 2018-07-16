@@ -43,6 +43,7 @@ function handleRequest(req, res) {
 
     const asynctasks = [];
     asynctasks.push(cb => checkAuthenticated(req, cb));
+    asynctasks.push(cb => processRequestQuery(req, cb));
 
     let rb_idx = false;
     if (is_req_body_allowed) {
@@ -158,6 +159,27 @@ function processRequestBody(req, cb) {
     }).on('end', () => {
         cb(null, JSON.parse(body.join('')));
     });
+}
+
+function processRequestQuery(req, cb) {
+    let tmp, query_string;
+
+    if ((tmp = req.url.indexOf('?')) === -1) {
+        req.query = {};
+        process.nextTick(cb);
+    } else {
+        query_string = req.url.substr(tmp + 1);
+        if ((tmp = query_string.indexOf('#')) !== -1) query_string = query_string.substr(0, tmp);
+        req.query = stringToKeyValuePairs(query_string, '&', '=');
+        process.nextTick(cb);
+    }
+}
+
+function stringToKeyValuePairs(s, sep, kvsep) {
+    return s.split(sep).map(kv => kv.split(kvsep)).reduce((acc, kv) => {
+        acc[kv[0]] = kv[1];
+        return acc;
+    }, {});
 }
 
 function getUser(username, cb) {
