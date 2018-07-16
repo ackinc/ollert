@@ -114,6 +114,19 @@
         let cur_section;
         showSection('login_section');
 
+        // displays the section having id <id>,while hiding other sections
+        function showSection(id) {
+            all_sections.forEach(section => {
+                if (section.id === id) {
+                    section.classList.remove('hide');
+                    section.querySelector('input').focus();
+                    cur_section = section;
+                } else {
+                    section.classList.add('hide');
+                }
+            });
+        }
+
         document.querySelectorAll('span.change-active-section').forEach(elem => {
             elem.addEventListener('click', function (e) {
                 showSection(this.dataset.show);
@@ -165,19 +178,6 @@
 
             tryLogin({ username: username, password: pass });
         });
-
-        // displays the section having id <id>,while hiding other sections
-        function showSection(id) {
-            all_sections.forEach(section => {
-                if (section.id === id) {
-                    section.classList.remove('hide');
-                    section.querySelector('input').focus();
-                    cur_section = section;
-                } else {
-                    section.classList.add('hide');
-                }
-            });
-        }
 
         function tryLogin(credentials) {
             fetch(LOGIN_API_URL, {
