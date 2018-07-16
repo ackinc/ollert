@@ -10,6 +10,7 @@ const path = require('path');
 
 const async = require('./libs/async');
 const config = require('./config');
+const middleware = require('./libs/middleware');
 const util = require('./libs/util');
 
 const URLS_REQUIRING_AUTHENTICATION = [
@@ -42,14 +43,10 @@ function handleRequest(req, res) {
     const is_req_body_allowed = method !== "GET";
 
     const asynctasks = [];
+    asynctasks.push(cb => middleware.processRequestQuery(req, cb));
+    asynctasks.push(cb => middleware.processRequestCookies(req, cb));
+    asynctasks.push(cb => middleware.processRequestBody(req, cb));
     asynctasks.push(cb => checkAuthenticated(req, cb));
-    asynctasks.push(cb => processRequestQuery(req, cb));
-
-    let rb_idx = false;
-    if (is_req_body_allowed) {
-        rb_idx = asynctasks.length;
-        asynctasks.push(cb => processRequestBody(req, cb));
-    }
 
     async.parallel(asynctasks, (err, results) => {
         if (err) {
@@ -59,7 +56,6 @@ function handleRequest(req, res) {
             console.error(err);
         } else {
             req.token = results[0];
-            if (rb_idx !== false) req.body = results[rb_idx];
 
             if (is_auth_required && !req.token) {
                 res.statusCode = 302;
@@ -148,33 +144,6 @@ function getMIMEType(filename) {
         default:
             throw new Error('Asked for MIME type of file with unrecognized extension');
     }
-}
-
-function processRequestBody(req, cb) {
-    const body = [];
-    req.on('error', err => {
-        cb(err);
-    }).on('data', chunk => {
-        body.push(chunk);
-    }).on('end', () => {
-        cb(null, JSON.parse(body.join('')));
-    });
-}
-
-function processRequestQuery(req, cb) {
-    let tmp, query_string;
-
-    if ((tmp = req.url.indexOf('?')) === -1) {
-        req.query = {};
-        process.nextTick(cb);
-    } else {
-        query_string = req.url.substr(tmp + 1);
-        if ((tmp = query_string.indexOf('#')) !== -1) query_string = query_string.substr(0, tmp);
-        req.query = util.stringToKeyValuePairs(query_string, '&', '=');
-        process.nextTick(cb);
-    }
-}
-
 }
 
 function getUser(username, cb) {
