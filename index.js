@@ -10,7 +10,7 @@ const path = require('path');
 
 const async = require('./libs/async');
 const config = require('./config');
-const random = require('./libs/random');
+const util = require('./libs/util');
 
 const URLS_REQUIRING_AUTHENTICATION = [
     '/boards.html'
@@ -170,16 +170,11 @@ function processRequestQuery(req, cb) {
     } else {
         query_string = req.url.substr(tmp + 1);
         if ((tmp = query_string.indexOf('#')) !== -1) query_string = query_string.substr(0, tmp);
-        req.query = stringToKeyValuePairs(query_string, '&', '=');
+        req.query = util.stringToKeyValuePairs(query_string, '&', '=');
         process.nextTick(cb);
     }
 }
 
-function stringToKeyValuePairs(s, sep, kvsep) {
-    return s.split(sep).map(kv => kv.split(kvsep)).reduce((acc, kv) => {
-        acc[kv[0]] = kv[1];
-        return acc;
-    }, {});
 }
 
 function getUser(username, cb) {
@@ -208,12 +203,8 @@ function checkAuthenticated(req, cb) {
 
 function extractCookieVal(cookie, key) {
     if (cookie === undefined || cookie === "") return false;
-    const tmp = cookie.split(';')
-        .map(kvpair => kvpair.trim().split('='))
-        .filter(pair => pair[0] === key);
-
-    if (tmp.length === 0) return false;
-    else return tmp[0][1];
+    const tmp = util.stringToKeyValuePairs(cookie, ';', '=');
+    return tmp[key] || false;
 }
 
 function sendLoginSuccessResponse(payload, res, cb) {
@@ -246,7 +237,7 @@ function loginWithGoogle(token, res) {
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
-            createUser(username, random.randomString(12), true, function () { });
+            createUser(username, util.randomString(12), true, function () { });
         }
     });
 }
@@ -266,7 +257,7 @@ function loginWithFacebook(token, res) {
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
-            createUser(username, random.randomString(12), true, function () { });
+            createUser(username, util.randomString(12), true, function () { });
         }
     });
 }

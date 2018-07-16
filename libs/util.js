@@ -11,7 +11,15 @@ function randomString(len) {
     return ret;
 }
 
+function stringToKeyValuePairs(s, sep, kvsep) {
+    return s.split(sep).map(kv => kv.trim().split(kvsep)).reduce((acc, kv) => {
+        acc[kv[0].trim()] = kv[1].trim();
+        return acc;
+    }, {});
+}
+
 module.exports = {
     randomInt: randomInt,
-    randomString: randomString
+    randomString: randomString,
+    stringToKeyValuePairs: stringToKeyValuePairs
 };
