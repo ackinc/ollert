@@ -169,7 +169,7 @@ function getUser(username, cb) {
     });
 }
 
-function createUser(username, password, verified, cb) {
+function createUser(username, password, verified, cb = function () { }) {
     const collection = db.collection('users');
 
     bcrypt.hash(password, config.bcrypt.rounds, (err, hashed_p) => {
@@ -193,12 +193,6 @@ function decodeToken(req, cb) {
             }
         });
     }
-}
-
-function extractCookieVal(cookie, key) {
-    if (cookie === undefined || cookie === "") return false;
-    const tmp = util.stringToKeyValuePairs(cookie, ';', '=');
-    return tmp[key] || false;
 }
 
 function sendLoginSuccessResponse(payload, res, cb) {
@@ -225,7 +219,7 @@ function loginWithGoogle(token, res) {
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
-            createUser(username, util.randomString(12), true, function () { });
+            createUser(username, util.randomString(12), true);
         }
     });
 }
@@ -243,7 +237,7 @@ function loginWithFacebook(token, res) {
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
-            createUser(username, util.randomString(12), true, function () { });
+            createUser(username, util.randomString(12), true);
         }
     });
 }
