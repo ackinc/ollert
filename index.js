@@ -84,22 +84,7 @@ function handleRequest(req, res) {
         if (is_req_for_static_file) {
             res.sendFile(`./static${url}`);
         } else if (method === "POST" && url === "/api/register") {
-            createUser(req.body.username, req.body.password, false, err => {
-                if (err && err.code === 11000) {
-                    res.json({ error: 'USERNAME_IN_USE' }, 400);
-                } else if (err) {
-                    res.error(err, `Creating new user in DB`);
-                } else {
-                    jwt.sign({ username: req.body.username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
-                        if (err) {
-                            res.error(err, `Creating JWT token for auto-login on successful registration`);
-                        } else {
-                            res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`);
-                            res.json({ redirect_url: '/boards.html' });
-                        };
-                    });
-                }
-            });
+            registerNewUser(req, res);
         } else if (method === "POST" && url === "/api/login") {
             if (req.body.provider === 'google') return loginWithGoogle(req.body.token, res);
             else if (req.body.provider === 'facebook') return loginWithFacebook(req.body.token, res);
@@ -190,10 +175,30 @@ function getUser(username, cb) {
 
 function createUser(username, password, verified, cb = function () { }) {
     const collection = db.collection('users');
+    collection.insertOne({ username: username, password: password, verified: verified, boards: [] }, cb);
+}
 
+function registerNewUser(req, res) {
+    const username = req.body.username, password = req.body.password;
     bcrypt.hash(password, config.bcrypt.rounds, (err, hashed_p) => {
-        if (err) cb(err);
-        else collection.insertOne({ username: username, password: hashed_p, verified: verified, boards: [] }, cb);
+        if (err) res.error(err, `Encrypting password on new user registration`);
+        else {
+            createUser(username, hashed_p, false, err => {
+                if (err && err.code === 11000) {
+                    res.json({ error: 'USERNAME_IN_USE' }, 400);
+                } else if (err) {
+                    res.error(err, `Creating new user in DB on registration`);
+                } else {
+                    jwt.sign({ username: username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
+                        if (err) res.error(err, `Signing JWT for auto-login on successful registration`);
+                        else {
+                            res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`);
+                            res.json({ redirect_url: '/boards.html' });
+                        };
+                    });
+                }
+            });
+        }
     });
 }
 
