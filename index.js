@@ -84,25 +84,19 @@ function handleRequest(req, res) {
         if (is_req_for_static_file) {
             res.sendFile(`./static${url}`);
         } else if (method === "POST" && url === "/api/register") {
-            getUser(req.body.username, (err, user) => {
-                if (err) {
-                    res.error(err, `Retrieving user from DB`);
-                } else if (user) {
-                    res.json({ error: 'USERNAME_TAKEN' }, 400);
+            createUser(req.body.username, req.body.password, false, err => {
+                if (err && err.code === 11000) {
+                    res.json({ error: 'USERNAME_IN_USE' }, 400);
+                } else if (err) {
+                    res.error(err, `Creating new user in DB`);
                 } else {
-                    createUser(req.body.username, req.body.password, false, err => {
+                    jwt.sign({ username: req.body.username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
                         if (err) {
-                            res.error(err, `Creating new user in DB`);
+                            res.error(err, `Creating JWT token for auto-login on successful registration`);
                         } else {
-                            jwt.sign({ username: req.body.username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
-                                if (err) {
-                                    res.error(err, `Creating JWT token for auto-login on successful registration`);
-                                } else {
-                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`);
-                                    res.json({ redirect_url: '/boards.html' });
-                                };
-                            });
-                        }
+                            res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`);
+                            res.json({ redirect_url: '/boards.html' });
+                        };
                     });
                 }
             });
