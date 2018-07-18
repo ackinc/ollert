@@ -56,7 +56,7 @@ function handleRequest(req, res) {
         if (err) {
             res.error(err, `Pre-processing incoming request`);
         } else {
-            decodeToken(req, err => {
+            decodeRequestToken(req, err => {
                 if (err) {
                     res.error(err, `Decoding JWT token`);
                 } else if (is_auth_required && req.decoded === null) {
@@ -114,6 +114,24 @@ function handleRequest(req, res) {
     }
 }
 
+function decodeRequestToken(req, cb) {
+    const token = req.cookie.token;
+    if (!token) {
+        req.decoded = null;
+        process.nextTick(cb);
+    } else {
+        jwt.verify(token, config.jsonwebtoken.key, (err, decoded) => {
+            if (err) {
+                cb(err);
+            } else {
+                req.decoded = decoded;
+                cb();
+            }
+        });
+    }
+}
+
+// functions to make sending responses easier
 function sendServerErrorResponse(err, context) {
     this.statusCode = 500;
     this.setHeader('Content-Type', 'application/json');
@@ -166,6 +184,7 @@ function getMIMEType(filename) {
     }
 }
 
+// functions dealing with the DB
 function getUser(username, cb) {
     const collection = db.collection('users');
     collection.find({ username: username }).toArray((err, users) => {
@@ -184,23 +203,7 @@ function createUser(username, password, verified, cb = function () { }) {
     });
 }
 
-function decodeToken(req, cb) {
-    const token = req.cookie.token;
-    if (!token) {
-        req.decoded = null;
-        process.nextTick(cb);
-    } else {
-        jwt.verify(token, config.jsonwebtoken.key, (err, decoded) => {
-            if (err) {
-                cb(err);
-            } else {
-                req.decoded = decoded;
-                cb();
-            }
-        });
-    }
-}
-
+// functions involved in the login process
 function handleLoginSuccess(payload, res) {
     if (cb === undefined) cb = function () { };
     jwt.sign(payload, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
