@@ -35,6 +35,10 @@ http.createServer(handleRequest)
 // HELPER FUNCTIONS //
 //////////////////////
 function handleRequest(req, res) {
+    res.error = sendServerErrorResponse;
+    res.json = sendJSONResponse;
+    res.redirect = sendRedirectResponse;
+
     let { method, url } = req;
     if (url === '/') url = '/index.html';
 
@@ -49,31 +53,22 @@ function handleRequest(req, res) {
 
     async.parallel(asynctasks, err => {
         if (err) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error: 'Server error' }));
-
-            console.error(err);
+            res.error(err, `Pre-processing incoming request`);
         } else if (req.cookies.token) {
             decodeToken(req, err => {
                 if (err || req.decoded === null) {
                     // bad token, so redirect to home
-                    res.statusCode = 302;
-                    res.setHeader('location', '/');
-                    res.end();
+                    res.redirect('/');
                 } else if (req.url === '/index.html') {
                     // if an already-logged-in user lands on the home page,
                     //   redirect him to the boards page
-                    res.statusCode = 302;
-                    res.setHeader('location', '/boards.html');
-                    res.end();
+                    res.redirect('/boards.html');
                 } else {
                     continueHandlingRequest();
                 }
             });
         } else if (is_auth_required) {
-            res.statusCode = 302;
-            res.setHeader('location', '/');
-            res.end();
+            res.redirect('/');
         } else {
             continueHandlingRequest();
         }
@@ -85,27 +80,20 @@ function handleRequest(req, res) {
         } else if (method === "POST" && url === "/api/register") {
             getUser(req.body.username, (err, user) => {
                 if (err) {
-                    res.statusCode = 500;
-                    res.end(JSON.stringify({ error: 'Server error' }));
-                    throw err;
+                    res.error(err, `Retrieving user from DB`);
                 } else if (user) {
-                    res.statusCode = 400;
-                    res.end(JSON.stringify({ error: 'USERNAME_TAKEN' }));
+                    res.json({ error: 'USERNAME_TAKEN' }, 400);
                 } else {
                     createUser(req.body.username, req.body.password, false, err => {
                         if (err) {
-                            res.statusCode = 500;
-                            res.end(JSON.stringify({ error: 'Server error' }));
-                            throw err;
+                            res.error(err, `Creating new user in DB`);
                         } else {
                             jwt.sign({ username: req.body.username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
                                 if (err) {
-                                    console.error(`Error creating JWT token`);
-                                    console.error(err);
-                                    res.end(JSON.stringify({}));
+                                    res.error(err, `Creating JWT token for auto-login on successful registration`);
                                 } else {
-                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
-                                    res.end(JSON.stringify({ redirect_url: '/boards.html' }));
+                                    res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`);
+                                    res.json({ redirect_url: '/boards.html' });
                                 };
                             });
                         }
@@ -120,13 +108,33 @@ function handleRequest(req, res) {
     }
 }
 
+function sendServerErrorResponse(err, context) {
+    this.statusCode = 500;
+    this.setHeader('Content-Type', 'application/json');
+    this.end(JSON.stringify({ error: 'SERVER_ERROR' }));
+
+    console.error(`Error context: ${context}`);
+    console.error(err);
+}
+
+function sendJSONResponse(body, status = 200) {
+    this.statusCode = status;
+    this.setHeader('Content-Type', 'application/json');
+    this.end(JSON.stringify(body));
+}
+
+function sendRedirectResponse(location) {
+    this.statusCode = 302;
+    this.setHeader('location', location);
+    this.end();
+}
+
 function sendFile(filename, res) {
     fs.readFile(filename, (err, data) => {
         if (err && err.code === 'ENOENT') {
-            res.statusCode = 404;
-            res.end();
+            res.json({ error: 'RESOURCE_NOT_FOUND' }, 404);
         } else if (err) {
-            throw err;
+            res.error(err, `Reading file from file system`);
         } else {
             res.setHeader('Content-type', getMIMEType(filename));
             res.end(data);
@@ -197,15 +205,11 @@ function sendLoginSuccessResponse(payload, res, cb) {
     if (cb === undefined) cb = function () { };
     jwt.sign(payload, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
         if (err) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error: 'Server error' }));
-
-            console.error(`Error creating JWT token`);
-            console.error(err);
+            res.error(err, 'Creating JWT token on login');
             cb(err);
         } else {
-            res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`)
-            res.end(JSON.stringify({ redirect_url: '/boards.html' }));
+            res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`);
+            res.json({ redirect_url: '/boards.html' });
             cb(null, token);
         };
     });
@@ -214,9 +218,7 @@ function sendLoginSuccessResponse(payload, res, cb) {
 function loginWithGoogle(token, res) {
     google_auth_client.verifyIdToken({ idToken: token, audience: config.google.client_id }, (err, ticket) => {
         if (err) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error: 'Server error' }));
-            console.error(err);
+            res.error(err, `Verifying Google ID token on login attempt`);
         } else {
             const username = ticket.getPayload().email;
             sendLoginSuccessResponse({ username: username }, res);
@@ -234,9 +236,7 @@ function loginWithFacebook(token, res) {
         .digest('hex');
     FB.api('/me', { access_token: token, appsecret_proof: appsecret_proof, fields: 'email' }, response => {
         if (response.error) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error: 'Server error' }));
-            console.error(err);
+            res.error(response.error, `Retrieving user details using Facebook token`);
         } else {
             const username = response.email;
             sendLoginSuccessResponse({ username: username }, res);
@@ -251,23 +251,15 @@ function loginWithFacebook(token, res) {
 function loginWithPassword(username, password, res) {
     getUser(username, (err, user) => {
         if (err) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error: 'Server error' }));
-            throw err;
+            res.error(err, `Retrieving user from DB`);
         } else if (!user) {
-            res.statusCode = 400;
-            res.end(JSON.stringify({ error: 'Incorrect username/password' }));
+            res.json({ error: 'INCORRECT_USERNAME_PASSWORD' }, 400);
         } else {
             bcrypt.compare(password, user.password, (err, matched) => {
                 if (err) {
-                    res.statusCode = 500;
-                    res.end(JSON.stringify({ error: 'Server error' }));
-
-                    console.error('Error comparing passwords');
-                    console.error(err);
+                    res.error(err, `Comparing passwords on login attempt`);
                 } else if (!matched) {
-                    res.statusCode = 400;
-                    res.end(JSON.stringify({ error: 'Incorrect username/password' }));
+                    res.json({ error: 'INCORRECT_USERNAME_PASSWORD' }, 400);
                 } else {
                     sendLoginSuccessResponse({ username: username }, res);
                 }
