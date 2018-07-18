@@ -219,11 +219,14 @@ function loginWithGoogle(token, res) {
             res.error(err, `Verifying Google ID token on login attempt`);
         } else {
             const username = ticket.getPayload().email;
-            handleLoginSuccess({ username: username }, res);
 
-            // WARNING: OK to ignore DUP_KEY errors below,
-            //            but what about other kinds of DB errors?
-            createUser(username, util.randomString(12), true);
+            createUser(username, util.randomString(12), true, err => {
+                if (err && err.code !== 11000) { // ignore DUP_KEY errors
+                    res.error(err, `Creating user on login with Google`);
+                } else {
+                    handleLoginSuccess({ username: username }, res);
+                }
+            });
         }
     });
 }
@@ -237,11 +240,14 @@ function loginWithFacebook(token, res) {
             res.error(response.error, `Retrieving user details using Facebook token`);
         } else {
             const username = response.email;
-            handleLoginSuccess({ username: username }, res);
 
-            // WARNING: OK to ignore DUP_KEY errors below,
-            //            but what about other kinds of DB errors?
-            createUser(username, util.randomString(12), true);
+            createUser(username, util.randomString(12), true, err => {
+                if (err && err.code !== 11000) { // ignore DUP_KEY errors
+                    res.error(err, `Creating user on login with Facebook`);
+                } else {
+                    handleLoginSuccess({ username: username }, res);
+                }
+            });
         }
     });
 }
