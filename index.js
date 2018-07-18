@@ -45,7 +45,6 @@ function handleRequest(req, res) {
 
     const is_auth_required = URLS_REQUIRING_AUTHENTICATION.indexOf(url) !== -1;
     const is_req_for_static_file = method === "GET" && !/^\/api\//.test(url);
-    const is_req_body_allowed = method !== "GET";
 
     const asynctasks = [];
     asynctasks.push(cb => middleware.processRequestQuery(req, cb));
