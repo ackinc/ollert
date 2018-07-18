@@ -38,6 +38,7 @@ function handleRequest(req, res) {
     res.error = sendServerErrorResponse;
     res.json = sendJSONResponse;
     res.redirect = sendRedirectResponse;
+    res.sendFile = sendStaticFileResponse;
 
     let { method, url } = req;
     if (url === '/') url = '/index.html';
@@ -81,7 +82,7 @@ function handleRequest(req, res) {
 
     function continueHandlingRequest() {
         if (is_req_for_static_file) {
-            sendFile(`./static${url}`, res);
+            res.sendFile(`./static${url}`);
         } else if (method === "POST" && url === "/api/register") {
             getUser(req.body.username, (err, user) => {
                 if (err) {
@@ -134,15 +135,15 @@ function sendRedirectResponse(location) {
     this.end();
 }
 
-function sendFile(filename, res) {
+function sendStaticFileResponse(filename) {
     fs.readFile(filename, (err, data) => {
         if (err && err.code === 'ENOENT') {
-            res.json({ error: 'RESOURCE_NOT_FOUND' }, 404);
+            this.json({ error: 'RESOURCE_NOT_FOUND' }, 404);
         } else if (err) {
-            res.error(err, `Reading file from file system`);
+            this.error(err, `Reading file from file system`);
         } else {
-            res.setHeader('Content-type', getMIMEType(filename));
-            res.end(data);
+            this.setHeader('Content-type', getMIMEType(filename));
+            this.end(data);
         }
     });
 }
