@@ -35,6 +35,7 @@ http.createServer(handleRequest)
 // HELPER FUNCTIONS //
 //////////////////////
 function handleRequest(req, res) {
+    // TODO: do we have to do this every time?
     res.error = sendServerErrorResponse;
     res.json = sendJSONResponse;
     res.redirect = sendRedirectResponse;
