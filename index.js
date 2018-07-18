@@ -201,16 +201,14 @@ function decodeToken(req, cb) {
     }
 }
 
-function sendLoginSuccessResponse(payload, res, cb) {
+function handleLoginSuccess(payload, res) {
     if (cb === undefined) cb = function () { };
     jwt.sign(payload, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
         if (err) {
             res.error(err, 'Creating JWT token on login');
-            cb(err);
         } else {
             res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`);
             res.json({ redirect_url: '/boards.html' });
-            cb(null, token);
         };
     });
 }
@@ -221,7 +219,7 @@ function loginWithGoogle(token, res) {
             res.error(err, `Verifying Google ID token on login attempt`);
         } else {
             const username = ticket.getPayload().email;
-            sendLoginSuccessResponse({ username: username }, res);
+            handleLoginSuccess({ username: username }, res);
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
@@ -239,7 +237,7 @@ function loginWithFacebook(token, res) {
             res.error(response.error, `Retrieving user details using Facebook token`);
         } else {
             const username = response.email;
-            sendLoginSuccessResponse({ username: username }, res);
+            handleLoginSuccess({ username: username }, res);
 
             // WARNING: OK to ignore DUP_KEY errors below,
             //            but what about other kinds of DB errors?
@@ -261,7 +259,7 @@ function loginWithPassword(username, password, res) {
                 } else if (!matched) {
                     res.json({ error: 'INCORRECT_USERNAME_PASSWORD' }, 400);
                 } else {
-                    sendLoginSuccessResponse({ username: username }, res);
+                    handleLoginSuccess({ username: username }, res);
                 }
             });
         }
