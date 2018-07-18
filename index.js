@@ -54,12 +54,21 @@ function handleRequest(req, res) {
     async.parallel(asynctasks, err => {
         if (err) {
             res.error(err, `Pre-processing incoming request`);
-        } else if (req.cookies.token) {
+        } else {
             decodeToken(req, err => {
-                if (err || req.decoded === null) {
-                    // bad token, so redirect to home
+                if (err) {
+                    res.error(err, `Decoding JWT token`);
+                } else if (is_auth_required && req.decoded === null) {
+                    // Bad token, so redirect to home
+                    // WARNING: this could cause some *bad* user experiences
+                    //   1. user is editing boards
+                    //   2. token expires before he is done
+                    //   3. user tries to save edits
+                    //   4. redirected to home page since token has expired; edits lost!
+                    // Possible fix: extend expiry time of cookie and token every time they are
+                    //   successfully sent
                     res.redirect('/');
-                } else if (req.url === '/index.html') {
+                } else if (req.url === '/index.html' && req.decoded !== null) {
                     // if an already-logged-in user lands on the home page,
                     //   redirect him to the boards page
                     res.redirect('/boards.html');
@@ -67,10 +76,6 @@ function handleRequest(req, res) {
                     continueHandlingRequest();
                 }
             });
-        } else if (is_auth_required) {
-            res.redirect('/');
-        } else {
-            continueHandlingRequest();
         }
     });
 
