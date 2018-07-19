@@ -103,6 +103,31 @@
                 <span class="change-active-section" data-show="registration_section">here</span>
             </p>
         </section>
+
+        <!-- This form will only be shown when
+            1. user successfully completes the password-based registration process
+            2. user tries to log in with an unverified email -->
+        <section id="email_verification_section" class="user-action-section">
+            <h1>Verify email address</h1>
+            <form name="email_verification_form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="text" name="email" required disabled />
+                </div>
+                <div class="input-group">
+                    <label>Verification code</label>
+                    <input type="text" name="code" required />
+                </div>
+                <div class="info"></div>
+                <div class="error"></div>
+                <button type="submit">Go!</button>
+
+            </form>
+
+            <p>Need us to resend your verification email? Click
+                <span class="resend_verification_email">here</span>
+            </p>
+        </section>
     </main>
 
     <script src="./js/index.js"></script>

@@ -54,6 +54,10 @@ section form {
     margin-right: 20px;
 }
 
+section#email_verification_section form {
+    max-width: 60%;
+}
+
 section form .input-group {
     margin-bottom: 8px;
 }
@@ -79,13 +83,13 @@ section form .input-group input {
 section form .info {
     color: yellowgreen;
     font-size: 0.8em;
-    text-align: center;
+    text-align: left;
 }
 
 section form .error {
     color: red;
     font-size: 0.8em;
-    text-align: center;
+    text-align: left;
 }
 
 section form button {
