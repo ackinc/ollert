@@ -5,8 +5,11 @@ const fs = require('fs');
 const http = require('http');
 const jwt = require('jsonwebtoken');
 const mongo_client = require('mongodb').MongoClient;
+const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library');
 const path = require('path');
+const pug = require('pug');
+const Redis = require('redis');
 
 const async = require('./libs/async');
 const config = require('./config');
@@ -25,6 +28,12 @@ mongo_client.connect(config.db.url, { useNewUrlParser: true }, (err, client) => 
     db = client.db(config.db.dbname);
     console.log(`Connected to database at ${config.db.url}/${config.db.dbname}`);
 });
+
+const redis = Redis.createClient(config.cache.url);
+redis.on('connect', () => console.log(`Connected to cache at ${config.cache.url}`));
+redis.on('error', err => { throw err; });
+
+const mail_transporter = nodemailer.createTransport(config.email);
 
 http.createServer(handleRequest)
     .listen(config.port, () => console.log(`Server is running on port ${config.port}`));
@@ -110,6 +119,8 @@ function decodeRequestToken(req, cb) {
     }
 }
 
+
+
 // functions to make sending responses easier
 function sendServerErrorResponse(err, context) {
     this.statusCode = 500;
@@ -163,6 +174,8 @@ function getMIMEType(filename) {
     }
 }
 
+
+
 // functions dealing with the DB
 function getUser(username, cb) {
     const collection = db.collection('users');
@@ -178,6 +191,9 @@ function createUser(username, password, verified, cb = function () { }) {
     collection.insertOne({ username: username, password: password, verified: verified, boards: [] }, cb);
 }
 
+
+
+// functions involved in the registration process
 function registerNewUser(req, res) {
     const username = req.body.username, password = req.body.password;
     bcrypt.hash(password, config.bcrypt.rounds, (err, hashed_p) => {
@@ -189,18 +205,50 @@ function registerNewUser(req, res) {
                 } else if (err) {
                     res.error(err, `Creating new user in DB on registration`);
                 } else {
-                    jwt.sign({ username: username }, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
-                        if (err) res.error(err, `Signing JWT for auto-login on successful registration`);
-                        else {
-                            res.setHeader('Set-Cookie', `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`);
-                            res.json({ redirect_url: '/boards.html' });
-                        };
+                    beginEmailVerification(username, err => {
+                        if (err) {
+                            // TODO: should be doing something else, like trying again
+                            res.json({ message: 'VERIFICATION_EMAIL_SENT' });
+
+                            console.error(err);
+                        } else {
+                            res.json({ message: 'VERIFICATION_EMAIL_SENT' });
+                        }
                     });
                 }
             });
         }
     });
 }
+
+// The email verification process can be started in 3 ways:
+// 1. New user registers
+// 2. Unverified user tries to login
+// 3. User requests "resend verification email"
+function beginEmailVerification(email, cb) {
+    const code = util.randomString(config.verification_settings.email.token_length);
+    redis.set(`email_verification_token:${email}`, code, 'EX', config.verification_settings.email.token_expiry, err => {
+        if (err) {
+            cb(err);
+        } else {
+            sendVerificationEmail(email, code);
+            cb();
+        }
+    });
+}
+
+function sendVerificationEmail(email, code, cb = genericCallback) {
+    const html = pug.renderFile(config.email_templates.EMAIL_VERIFICATION.template_path, { code: code });
+    const options = {
+        from: config.email.auth.user,
+        to: email,
+        subject: config.email_templates.EMAIL_VERIFICATION.subject,
+        html: html
+    };
+    mail_transporter.sendMail(options, cb);
+}
+
+
 
 // functions involved in the login process
 function handleLoginSuccess(payload, res) {
@@ -266,10 +314,27 @@ function loginWithPassword(username, password, res) {
                     res.error(err, `Comparing passwords on login attempt`);
                 } else if (!matched) {
                     res.json({ error: 'INCORRECT_USERNAME_PASSWORD' }, 400);
+                } else if (!user.verified) {
+                    beginEmailVerification(username, err => {
+                        if (err) {
+                            // TODO: should be doing something else, like trying again
+                            res.json({ message: 'VERIFICATION_EMAIL_SENT' }, 400);
+
+                            console.error(err);
+                        } else {
+                            res.json({ message: 'VERIFICATION_EMAIL_SENT' }, 400);
+                        }
+                    });
                 } else {
                     handleLoginSuccess({ username: username }, res);
                 }
             });
         }
     });
+}
+
+
+
+function genericCallback(err) {
+    if (err) console.error(err);
 }

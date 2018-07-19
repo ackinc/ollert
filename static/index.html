@@ -156,10 +156,8 @@
                 .then(body => {
                     if (body.error) {
                         this.querySelector('.error').innerHTML = body.error;
-                    } else if (body.redirect_url) {
-                        document.location.replace(body.redirect_url);
                     } else {
-                        this.querySelector('.info').innerHTML = `Registration successful. Please log in.`;
+                        this.querySelector('.info').innerHTML = body.message;
                     }
                 })
                 .catch(err => {
@@ -195,8 +193,8 @@
         function handleLoginResponse(body) {
             if (body.error) {
                 cur_section.querySelector('.error').innerHTML = body.error;
-            } else if (body.redirect_url) {
-                document.location.replace(body.redirect_url);
+            } else if (body.message === 'VERIFICATION_EMAIL_SENT') {
+                cur_section.querySelector('.info').innerHTML = body.message;
             } else {
                 document.location.replace('./boards.html');
             }
