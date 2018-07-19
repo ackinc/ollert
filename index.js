@@ -95,9 +95,13 @@ function handleRequest(req, res) {
         } else if (method === "POST" && url === "/api/register") {
             registerNewUser(req, res);
         } else if (method === "POST" && url === "/api/login") {
-            if (req.body.provider === 'google') return loginWithGoogle(req.body.token, res);
-            else if (req.body.provider === 'facebook') return loginWithFacebook(req.body.token, res);
+            if (req.body.provider === 'google') loginWithGoogle(req.body.token, res);
+            else if (req.body.provider === 'facebook') loginWithFacebook(req.body.token, res);
             else loginWithPassword(req.body.username, req.body.password, res);
+        } else if (method === "GET" && /^\/api\/resend_verification_email/.test(url)) {
+            resendVerificationEmailRequestHandler(req, res);
+        } else if (method === "POST" && url === '/api/verify_email') {
+            emailVerificationRequestHandler(req, res);
         }
     }
 }
@@ -241,6 +245,21 @@ function beginEmailVerification(email, cb) {
     });
 }
 
+function resendVerificationEmailRequestHandler(req, res) {
+    getUser(req.query.email, (err, user) => {
+        if (err) res.error(err, `Retrieving user details on request to resend verification email`);
+        else if (!user) res.json({ error: 'USER_NOT_FOUND' }, 400);
+        else beginEmailVerification(req.query.email, err => {
+            if (err) {
+                // TODO: should be doing something else, like trying again
+                res.json({ message: 'VERIFICATION_EMAIL_SENT' });
+            } else {
+                res.json({ message: 'VERIFICATION_EMAIL_SENT' });
+            }
+        });
+    });
+}
+
 function sendVerificationEmail(email, code, cb = genericCallback) {
     const html = pug.renderFile(config.email_templates.EMAIL_VERIFICATION.template_path, { code: code });
     const options = {
@@ -250,6 +269,25 @@ function sendVerificationEmail(email, code, cb = genericCallback) {
         html: html
     };
     mail_transporter.sendMail(options, cb);
+}
+
+function emailVerificationRequestHandler(req, res) {
+    getUser(req.body.email, (err, user) => {
+        if (err) res.error(err, `Retrieving user details on request to resend verification email`);
+        else if (!user) res.json({ error: 'USER_NOT_FOUND' }, 400);
+        else if (user.verified) res.json({ error: 'USER_ALREADY_VERIFIED' }, 400);
+        else {
+            redis.get(`email_verification_token:${req.body.email}`, (err, reply) => {
+                if (err) res.error(err, `Retrieving email verification token from redis`);
+                else if (reply === null) res.json({ error: 'TOKEN_EXPIRED' }, 400);
+                else if (reply !== req.body.code) res.json({ error: 'TOKEN_INCORRECT' }, 400);
+                else updateUser(user.username, { verified: true }, err => {
+                    if (err) res.error(err, `Updating user's verified status`);
+                    else handleLoginSuccess({ username: req.body.email }, res);
+                });
+            });
+        }
+    });
 }
 
 

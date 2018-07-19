@@ -188,3 +188,12 @@ section p span.change-active-section:hover {
     cursor: pointer;
     text-decoration: underline;
 }
+
+section p span.resend_verification_email {
+    color: blue;
+}
+
+section p span.resend_verification_email:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}

@@ -1,6 +1,6 @@
 const REGISTRATION_API_URL = '/api/register';
 const LOGIN_API_URL = '/api/login';
-const SEND_VERIFICATION_EMAIL_API_URL = '/api/resend_verification_email';
+const RESEND_VERIFICATION_EMAIL_API_URL = '/api/resend_verification_email';
 const VERIFY_EMAIL_API_URL = '/api/verify_email';
 
 const main_node = document.querySelector('main');
@@ -103,4 +103,67 @@ function showEmailVerificationSection(email) {
     s.querySelector('input[name="email"]').value = email;
 
     showSection(s.id);
+}
+
+document.querySelector('form[name="email_verification_form"]').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const email = this.querySelector('input[name="email"]').value;
+    const code = this.querySelector('input[name="code"]').value;
+
+    tryEmailVerification(email, code);
+});
+
+function tryEmailVerification(email, code) {
+    fetch(VERIFY_EMAIL_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, code: code })
+    })
+        .then(res => res.json())
+        .then(body => {
+            const [errorbox] = clearErrorAndInfoBoxes();
+
+            if (body.error === 'TOKEN_EXPIRED') {
+                errorbox.innerHTML = 'Your code has expired. Please use the "resend verification email" feature below to get another code.';
+            } else if (body.error) {
+                errorbox.innerHTML = body.error;
+            } else {
+                document.location.replace('./boards.html');
+            }
+        })
+        .catch(err => {
+            errorbox.innerHTML = 'Network error.';
+            console.error(err);
+        });
+}
+
+document.querySelector('#email_verification_section span.resend_verification_email').addEventListener('click', function (e) {
+    resendVerificationEmail(cur_section.querySelector('input[name="email"]').value);
+});
+
+function resendVerificationEmail(email) {
+    const [errorbox, infobox] = clearErrorAndInfoBoxes();
+
+    fetch(`${RESEND_VERIFICATION_EMAIL_API_URL}?email=${email}`)
+        .then(res => res.json())
+        .then(body => {
+            if (body.error) {
+                errorbox.innerHTML = body.error;
+            } else {
+                infobox.innerHTML = 'Email sent. Please check your inbox.';
+            }
+        })
+        .catch(err => {
+            errorbox.innerHTML = 'Network error';
+            console.error(err);
+        });
+}
+
+function clearErrorAndInfoBoxes() {
+    const errorbox = cur_section.querySelector('.error');
+    const infobox = cur_section.querySelector('.info');
+    errorbox.innerHTML = '';
+    infobox.innerHTML = '';
+    return [errorbox, infobox];
 }
