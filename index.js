@@ -186,9 +186,13 @@ function getUser(username, cb) {
     });
 }
 
-function createUser(username, password, verified, cb = function () { }) {
+function createUser(username, password, verified, cb = genericCallback) {
     const collection = db.collection('users');
     collection.insertOne({ username: username, password: password, verified: verified, boards: [] }, cb);
+}
+
+function updateUser(username, data, cb = genericCallback) {
+    db.collection('users').updateOne({ username: username }, { $set: data }, cb);
 }
 
 
@@ -252,7 +256,6 @@ function sendVerificationEmail(email, code, cb = genericCallback) {
 
 // functions involved in the login process
 function handleLoginSuccess(payload, res) {
-    if (cb === undefined) cb = function () { };
     jwt.sign(payload, config.jsonwebtoken.key, { expiresIn: config.jsonwebtoken.expiry }, (err, token) => {
         if (err) {
             res.error(err, 'Creating JWT token on login');
@@ -271,7 +274,10 @@ function loginWithGoogle(token, res) {
             const username = ticket.getPayload().email;
 
             createUser(username, util.randomString(12), true, err => {
-                if (err && err.code !== 11000) { // ignore DUP_KEY errors
+                if (err && err.code === 11000) {
+                    handleLoginSuccess({ username: username }, res);
+                    updateUser(username, { verified: true });
+                } else if (err) {
                     res.error(err, `Creating user on login with Google`);
                 } else {
                     handleLoginSuccess({ username: username }, res);
@@ -292,7 +298,10 @@ function loginWithFacebook(token, res) {
             const username = response.email;
 
             createUser(username, util.randomString(12), true, err => {
-                if (err && err.code !== 11000) { // ignore DUP_KEY errors
+                if (err && err.code === 11000) {
+                    handleLoginSuccess({ username: username }, res);
+                    updateUser(username, { verified: true });
+                } else if (err) {
                     res.error(err, `Creating user on login with Facebook`);
                 } else {
                     handleLoginSuccess({ username: username }, res);
