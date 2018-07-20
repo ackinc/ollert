@@ -179,21 +179,3 @@ section p {
     font-size: 0.8em;
     margin-top: 30px;
 }
-
-section p span.change-active-section {
-    color: blue;
-}
-
-section p span.change-active-section:hover {
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-section p span.resend_verification_email {
-    color: blue;
-}
-
-section p span.resend_verification_email:hover {
-    cursor: pointer;
-    text-decoration: underline;
-}
