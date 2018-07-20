@@ -44,14 +44,13 @@ http.createServer(handleRequest)
 // HELPER FUNCTIONS //
 //////////////////////
 function handleRequest(req, res) {
-    // TODO: do we have to do this every time?
     res.error = sendServerErrorResponse;
     res.json = sendJSONResponse;
     res.redirect = sendRedirectResponse;
     res.sendFile = sendStaticFileResponse;
 
     let { method, url } = req;
-    if (url === '/') url = '/index.html';
+    if (url === '/' || /^\/(\?|#)/.test(url)) url = '/index.html';
 
     const is_auth_required = URLS_REQUIRING_AUTHENTICATION.indexOf(url) !== -1;
     const is_req_for_static_file = method === "GET" && !/^\/api\//.test(url);
@@ -102,6 +101,10 @@ function handleRequest(req, res) {
             resendVerificationEmailRequestHandler(req, res);
         } else if (method === "POST" && url === '/api/verify_email') {
             emailVerificationRequestHandler(req, res);
+        } else if (method === "GET" && /^\/api\/forgot_password/.test(url)) {
+            forgotPasswordRequestHandler(req, res);
+        } else if (method === "POST" && url === '/api/reset_password') {
+            resetPasswordRequestHandler(req, res);
         }
     }
 }
@@ -147,13 +150,14 @@ function sendRedirectResponse(location) {
     this.end();
 }
 
-function sendStaticFileResponse(filename) {
+function sendStaticFileResponse(filename, status_code = 200) {
     fs.readFile(filename, (err, data) => {
         if (err && err.code === 'ENOENT') {
-            this.json({ error: 'RESOURCE_NOT_FOUND' }, 404);
+            this.sendFile('./static/404.html', 404);
         } else if (err) {
             this.error(err, `Reading file from file system`);
         } else {
+            this.statusCode = status_code;
             this.setHeader('Content-type', getMIMEType(filename));
             this.end(data);
         }
@@ -374,6 +378,60 @@ function loginWithPassword(username, password, res) {
                     });
                 } else {
                     handleLoginSuccess({ username: username }, res);
+                }
+            });
+        }
+    });
+}
+
+function forgotPasswordRequestHandler(req, res) {
+    const username = req.query.username;
+    getUser(username, (err, user) => {
+        if (err) {
+            res.error(err, `Retrieving user from DB after receiving forgot password request`);
+        } else if (!user) {
+            res.json({ error: 'USER_NOT_FOUND' }, 400);
+        } else {
+            const code = util.randomString(config.password_reset_settings.token_length);
+            redis.set(`reset_password_token:${username}`, code, 'EX', config.password_reset_settings.token_expiry, err => {
+                if (err) res.error(err, `Setting reset password token in redis`);
+                else {
+                    res.json({ message: 'RESET_PASSWORD_EMAIL_SENT', validity: config.password_reset_settings.token_expiry });
+                    sendResetPasswordEmail(username, `${req.query.pwreset_url}?username=${username}&password_reset_code=${code}`);
+                }
+            });
+        }
+    })
+}
+
+function sendResetPasswordEmail(email, pwreset_link, cb = genericCallback) {
+    const html = pug.renderFile(config.email_templates.RESET_PASSWORD.template_path, { pwreset_link: pwreset_link });
+    const options = {
+        from: config.email.auth.user,
+        to: email,
+        subject: config.email_templates.RESET_PASSWORD.subject,
+        html: html
+    };
+    mail_transporter.sendMail(options, cb);
+}
+
+function resetPasswordRequestHandler(req, res) {
+    getUser(req.body.username, (err, user) => {
+        if (err) res.error(err, `Retrieving user details from DB on reset password request`);
+        else if (!user) res.json({ error: 'USER_NOT_FOUND' }, 400);
+        else {
+            redis.get(`reset_password_token:${req.body.username}`, (err, reply) => {
+                if (err) res.error(err, `Retrieving reset password token from Redis`);
+                else if (!reply) res.json({ error: 'TOKEN_EXPIRED' }, 400);
+                else if (reply !== req.body.code) res.json({ error: 'INCORRECT_TOKEN' }, 400);
+                else {
+                    bcrypt.hash(req.body.password, config.bcrypt.rounds, (err, hashed_p) => {
+                        if (err) res.error(err, `Encrypting new password`);
+                        else updateUser(req.body.username, { verified: true, password: hashed_p }, err => {
+                            if (err) res.error(err, `Updating user's password`);
+                            else res.json({ message: 'PASSWORD_UPDATED' });
+                        });
+                    });
                 }
             });
         }

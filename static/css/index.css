@@ -80,6 +80,11 @@ section form .input-group input {
     width: 95%;
 }
 
+section form .input-group .subtext {
+    font-size: 0.6em;
+    margin-top: 3px;
+}
+
 section form .info {
     color: yellowgreen;
     font-size: 0.8em;

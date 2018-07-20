@@ -2,11 +2,21 @@ const REGISTRATION_API_URL = '/api/register';
 const LOGIN_API_URL = '/api/login';
 const RESEND_VERIFICATION_EMAIL_API_URL = '/api/resend_verification_email';
 const VERIFY_EMAIL_API_URL = '/api/verify_email';
+const FORGOT_PASSWORD_API_URL = '/api/forgot_password';
+const RESET_PASSWORD_API_URL = 'api/reset_password';
 
 const main_node = document.querySelector('main');
 const all_sections = document.querySelectorAll('.user-action-section');
 let cur_section;
-showSection('login_section');
+
+const query_obj = util.parseQueryString(document.location.search.substr(1));
+if (query_obj.username && query_obj.password_reset_code) {
+    showSection('reset_password_section');
+    cur_section.querySelector('input[name="username"]').value = query_obj.username;
+    cur_section.querySelector('input[name="code"]').value = query_obj.password_reset_code;
+} else {
+    showSection('login_section');
+}
 
 // displays the section having id <id>,while hiding other sections
 function showSection(id) {
@@ -25,6 +35,29 @@ document.querySelectorAll('span.change-active-section').forEach(elem => {
     elem.addEventListener('click', function (e) {
         showSection(this.dataset.show);
     });
+});
+
+document.querySelector('span.forgot-password').addEventListener('click', function (e) {
+    const username = cur_section.querySelector('input[name="username"]').value;
+    const [errorbox, infobox] = clearErrorAndInfoBoxes();
+
+    if (!username) {
+        errorbox.innerHTML = 'Please enter your email address above before clicking "forgot password"';
+    } else {
+        fetch(`${FORGOT_PASSWORD_API_URL}?username=${username}&pwreset_url=${encodeURI(document.location)}`)
+            .then(res => res.json())
+            .then(body => {
+                if (body.error) {
+                    errorbox.innerHTML = body.error;
+                } else {
+                    infobox.innerHTML = `An email containing a reset-password link has been sent to your inbox`;
+                }
+            })
+            .catch(err => {
+                errorbox.innerHTML = 'Network error';
+                console.error(err);
+            });
+    }
 });
 
 document.querySelector('form[name="registration_form"]').addEventListener('submit', function (e) {
@@ -159,6 +192,40 @@ function resendVerificationEmail(email) {
             console.error(err);
         });
 }
+
+document.querySelector('form[name="reset_password_form"]').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const username = cur_section.querySelector('input[name="username"]').value;
+    const code = cur_section.querySelector('input[name="code"]').value;
+    const password = cur_section.querySelector('input[name="password"]').value;
+    const c_password = cur_section.querySelector('input[name="c_password"]').value;
+
+    if (password !== c_password) {
+        cur_section.querySelector('.error').innerHTML = `Passwords don't match`;
+    } else {
+        const [errorbox] = clearErrorAndInfoBoxes();
+
+        fetch(RESET_PASSWORD_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username, code: code, password: password })
+        })
+            .then(res => res.json())
+            .then(body => {
+                if (body.error) {
+                    errorbox.innerHTML = body.error;
+                } else {
+                    showSection('login_section');
+                    cur_section.querySelector('.info').innerHTML = 'Your password has been reset. Please log in.';
+                }
+            })
+            .catch(err => {
+                errorbox.innerHTML = 'Network error';
+                console.error(err);
+            });
+    }
+});
 
 function clearErrorAndInfoBoxes() {
     const errorbox = cur_section.querySelector('.error');

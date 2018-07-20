@@ -7,7 +7,16 @@ const util = (function () {
         }
     }
 
+    function parseQueryString(qs) {
+        return qs.split('&').reduce((acc, kv) => {
+            const tmp = kv.split('=');
+            acc[tmp[0]] = tmp[1];
+            return acc;
+        }, {});
+    }
+
     return {
-        clearForm: clearForm
+        clearForm: clearForm,
+        parseQueryString: parseQueryString
     };
 })();

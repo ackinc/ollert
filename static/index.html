@@ -77,6 +77,9 @@
                     <div class="input-group">
                         <label>Password</label>
                         <input type="password" name="password" required />
+                        <p class="subtext">
+                            <span class="forgot-password hyperlink">Forgot password?</span>
+                        </p>
                     </div>
 
                     <div class="info"></div>
@@ -122,6 +125,34 @@
                 <div class="error"></div>
                 <button type="submit">Go!</button>
 
+            </form>
+
+            <p>Need us to resend your verification email? Click
+                <span class="resend_verification_email hyperlink">here</span>
+            </p>
+        </section>
+
+        <!-- This section will only be shown when
+            1. user clicks link in password reset email -->
+        <section id="reset_password_section" class="user-action-section">
+            <h1>Reset Password</h1>
+            <form name="reset_password_form">
+                <input type="hidden" name="username" required />
+                <input type="hidden" name="code" required />
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required />
+                </div>
+
+                <div class="input-group">
+                    <label>Confirm password</label>
+                    <input type="password" name="c_password" required />
+                </div>
+
+                <div class="info"></div>
+                <div class="error"></div>
+                <button type="submit">Reset Password</button>
             </form>
 
             <p>Need us to resend your verification email? Click
