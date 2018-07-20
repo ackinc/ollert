@@ -36,8 +36,13 @@ function processRequestBody(req, cb) {
             .on('data', chunk => {
                 tmp.push(chunk);
             }).on('end', () => {
-                req.body = JSON.parse(tmp.join(''));
-                cb();
+                try {
+                    req.body = JSON.parse(tmp.join(''));
+                } catch (e) {
+                    req.body = {};
+                } finally {
+                    cb();
+                }
             });
     }
 }
