@@ -37,6 +37,7 @@ function processRequestBody(req, cb) {
                 tmp.push(chunk);
             }).on('end', () => {
                 try {
+                    // TODO: don't assume request has Content-Type JSON
                     req.body = JSON.parse(tmp.join(''));
                 } catch (e) {
                     req.body = {};
