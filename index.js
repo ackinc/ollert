@@ -18,7 +18,8 @@ const url_parser = require('./libs/url_parser');
 const util = require('./libs/util');
 
 const URLS_REQUIRING_AUTHENTICATION = [
-    '/boards.html'
+    '/boards.html',
+    '/api/me/boards'
 ];
 
 const google_auth_client = new OAuth2Client(config.google.client_id);
@@ -51,7 +52,7 @@ function handleRequest(req, res) {
     res.sendFile = sendStaticFileResponse;
 
     let { method, url } = req;
-    url = url_parser.parse(url).path;
+    url = url_parser.parse(`http://${req.headers.host}${url}`).path;
     if (url === '/') url = '/index.html';
 
     const is_auth_required = URLS_REQUIRING_AUTHENTICATION.indexOf(url) !== -1;
@@ -107,6 +108,10 @@ function handleRequest(req, res) {
             forgotPasswordRequestHandler(req, res);
         } else if (method === "POST" && url === '/api/reset_password') {
             resetPasswordRequestHandler(req, res);
+        } else if (method === "GET" && url === '/api/me/boards') {
+            retrieveUserBoards(req, res);
+        } else if (method === "POST" && url === '/api/me/boards') {
+            saveUserBoards(req, res);
         }
     }
 }
@@ -198,7 +203,7 @@ function getUser(username, cb) {
 
 function createUser(username, password, verified, cb = genericCallback) {
     const collection = db.collection('users');
-    collection.insertOne({ username: username, password: password, verified: verified, boards: [] }, cb);
+    collection.insertOne({ username: username, password: password, verified: verified, boards: '[]' }, cb);
 }
 
 function updateUser(username, data, cb = genericCallback) {
@@ -437,6 +442,26 @@ function resetPasswordRequestHandler(req, res) {
                 }
             });
         }
+    });
+}
+
+
+
+function retrieveUserBoards(req, res) {
+    const username = req.decoded.username;
+    getUser(username, (err, user) => {
+        if (err) res.error(err, `Retrieving user details from DB on receiving request for user's boards`);
+        else if (!user) res.json({ error: 'USER_NOT_FOUND' }, 400);
+        else res.json({ boards: JSON.parse(user.boards) });
+    });
+}
+
+function saveUserBoards(req, res) {
+    const username = req.decoded.username;
+    const boards = req.body.boards;
+    updateUser(username, { boards: JSON.stringify(boards) }, err => {
+        if (err) res.error(err, `Saving user's boards to DB`);
+        else res.json({ message: 'BOARDS_SAVED' });
     });
 }
 

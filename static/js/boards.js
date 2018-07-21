@@ -1,4 +1,20 @@
-const boards = JSON.parse(localStorage.getItem('boards') || '[]');
+const BOARDS_API_URL = '/api/me/boards';
+
+let boards;
+fetch(BOARDS_API_URL)
+    .then(res => res.json())
+    .then(body => {
+        if (body.error) {
+            document.querySelector('main .loading').innerHTML = 'Error retrieving boards.';
+        } else {
+            boards = body.boards;
+            showBoards(boards);
+        }
+    })
+    .catch(err => {
+        document.querySelector('main .loading').innerHTML = 'Error retrieving boards.';
+        console.error(err);
+    });
 let cur_board = null;
 
 const main_node = document.querySelector('main');
@@ -15,7 +31,6 @@ const new_list_html = `<form id="new-list-form" class="list-like">
                            <button>Cancel</button>
                        </form>`;
 
-document.addEventListener('DOMContentLoaded', (e) => showBoards(boards));
 main_node.addEventListener('click', handleClick);
 document.querySelector('button.logout').addEventListener('click', logout);
 
@@ -108,13 +123,13 @@ function hideNewBoardForm() {
 
 function createBoard(name) {
     boards.unshift({ title: name, lists: [] });
-    localStorage.boards = JSON.stringify(boards);
+    saveBoards(boards);
     showBoards(boards);
 }
 
 function closeBoard(board) {
     boards.splice(getBoardIndex(board), 1);
-    localStorage.boards = JSON.stringify(boards);
+    saveBoards(boards);
     board.parentNode.removeChild(board);
 }
 
@@ -140,7 +155,7 @@ function allowEditBoardName(board_node) {
 
 function editBoardName(board_node, new_name) {
     boards[getBoardIndex(board_node)].title = new_name;
-    localStorage.boards = JSON.stringify(boards);
+    saveBoards(boards);
 
     board_node.querySelector('.board-content').innerHTML = `<h1> ${new_name}</h1>`;
 }
@@ -216,7 +231,7 @@ function createList(board, title) {
     board.lists.push({ title: title, items: [] });
 
     showLists(cur_board);
-    localStorage.boards = JSON.stringify(boards);
+    saveBoards(boards);
 }
 
 function deleteList(list_node) {
@@ -224,14 +239,14 @@ function deleteList(list_node) {
     cur_board.lists.splice(list_idx, 1);
 
     showLists(cur_board);
-    localStorage.boards = JSON.stringify(boards);
+    saveBoards(boards);
 }
 
 function addItemToList(list_node, item) {
     cur_board.lists[+list_node.dataset.idx].items.push({ desc: item, done: false });
 
     showLists(cur_board);
-    localStorage.boards = JSON.stringify(boards);
+    saveBoards(boards);
 }
 
 function toggleListItemDone(list_item_node) {
@@ -241,7 +256,7 @@ function toggleListItemDone(list_item_node) {
     cur_board.lists[list_idx].items[item_idx].done = !cur_board.lists[list_idx].items[item_idx].done;
 
     showLists(cur_board);
-    localStorage.boards = JSON.stringify(boards);
+    saveBoards(boards);
 }
 
 function deleteListItem(list_item_node) {
@@ -250,7 +265,7 @@ function deleteListItem(list_item_node) {
     cur_board.lists[list_idx].items.splice(item_idx, 1);
 
     showLists(cur_board);
-    localStorage.boards = JSON.stringify(boards);
+    saveBoards(boards);
 }
 
 function logout() {
@@ -280,4 +295,18 @@ function getNearestParentWithClass(node, req_class) {
         node = node.parentNode;
     }
     return node;
+}
+
+function saveBoards(boards) {
+    fetch(BOARDS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ boards: boards })
+    })
+        .then(res => res.json())
+        .then(body => {
+            if (body.error) console.error(body);
+            else console.log("Boards saved!");
+        })
+        .catch(console.error);
 }

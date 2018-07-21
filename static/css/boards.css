@@ -25,6 +25,11 @@ main {
     padding: 50px 0px 0px 100px;
 }
 
+.loading {
+    height: 100%;
+    width: 100;
+}
+
 .boards {
     display: flex;
     flex-flow: row wrap;
