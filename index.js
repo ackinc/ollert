@@ -14,6 +14,7 @@ const Redis = require('redis');
 const async = require('./libs/async');
 const config = require('./config');
 const middleware = require('./libs/middleware');
+const url_parser = require('./libs/url_parser');
 const util = require('./libs/util');
 
 const URLS_REQUIRING_AUTHENTICATION = [
@@ -50,7 +51,8 @@ function handleRequest(req, res) {
     res.sendFile = sendStaticFileResponse;
 
     let { method, url } = req;
-    if (url === '/' || /^\/(\?|#)/.test(url)) url = '/index.html';
+    url = url_parser.parse(url).path;
+    if (url === '/') url = '/index.html';
 
     const is_auth_required = URLS_REQUIRING_AUTHENTICATION.indexOf(url) !== -1;
     const is_req_for_static_file = method === "GET" && !/^\/api\//.test(url);
@@ -97,11 +99,11 @@ function handleRequest(req, res) {
             if (req.body.provider === 'google') loginWithGoogle(req.body.token, res);
             else if (req.body.provider === 'facebook') loginWithFacebook(req.body.token, res);
             else loginWithPassword(req.body.username, req.body.password, res);
-        } else if (method === "GET" && /^\/api\/resend_verification_email/.test(url)) {
+        } else if (method === "GET" && url === '/api/resend_verification_email') {
             resendVerificationEmailRequestHandler(req, res);
         } else if (method === "POST" && url === '/api/verify_email') {
             emailVerificationRequestHandler(req, res);
-        } else if (method === "GET" && /^\/api\/forgot_password/.test(url)) {
+        } else if (method === "GET" && url === '/api/forgot_password') {
             forgotPasswordRequestHandler(req, res);
         } else if (method === "POST" && url === '/api/reset_password') {
             resetPasswordRequestHandler(req, res);
