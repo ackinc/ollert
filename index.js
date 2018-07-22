@@ -10,11 +10,11 @@ const { OAuth2Client } = require('google-auth-library');
 const path = require('path');
 const pug = require('pug');
 const Redis = require('redis');
+const URL = require('url');
 
 const async = require('./libs/async');
 const config = require('./config');
 const middleware = require('./libs/middleware');
-const url_parser = require('./libs/url_parser');
 const util = require('./libs/util');
 
 const URLS_REQUIRING_AUTHENTICATION = [
@@ -52,7 +52,7 @@ function handleRequest(req, res) {
     res.sendFile = sendStaticFileResponse;
 
     let { method, url } = req;
-    url = url_parser.parse(`http://${req.headers.host}${url}`).path;
+    url = URL.parse(url).pathname;
     if (url === '/') url = '/index.html';
 
     const is_auth_required = URLS_REQUIRING_AUTHENTICATION.indexOf(url) !== -1;
