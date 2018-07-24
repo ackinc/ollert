@@ -189,10 +189,9 @@ main {
     font-size: 0.8em;
 
     margin: 0px auto 10px auto;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 8px 10px;
 
-    height: 40px;
+    min-height: 40px;
     width: 90%;
 }
 
@@ -203,6 +202,11 @@ main {
 .list ol li:hover {
     background-color: aliceblue;
     cursor: pointer;
+}
+
+.list ol li .list-item-desc {
+    line-height: 1.2em;
+    white-space: normal;
 }
 
 .list ol li .list-item-controls.hidden {
