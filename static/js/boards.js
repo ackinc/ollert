@@ -32,6 +32,10 @@ const new_list_html = `<form id="new-list-form" class="list-like">
                        </form>`;
 
 main_node.addEventListener('click', handleClick);
+document.querySelector('header h1 a').addEventListener('click', function (e) {
+    e.preventDefault();
+    showBoards(boards);
+});
 document.querySelector('button.logout').addEventListener('click', logout);
 
 function showBoards(boards) {
