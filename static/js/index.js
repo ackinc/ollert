@@ -23,6 +23,10 @@ function showSection(id) {
     all_sections.forEach(section => {
         if (section.id === id) {
             section.classList.remove('hide');
+
+            const form = section.querySelector('form');
+            if (form !== null) util.clearForm(form);
+
             section.querySelector('input').focus();
             cur_section = section;
         } else {
@@ -129,13 +133,11 @@ function tryLogin(credentials) {
 }
 
 function showEmailVerificationSection(email) {
-    const s = document.querySelector('#email_verification_section');
+    showSection('email_verification_section');
 
-    s.querySelector('.error').innerHTML = '';
-    s.querySelector('.info').innerHTML = 'A verification email has been sent to your inbox. Please enter the verification code and submit the form.';
-    s.querySelector('input[name="email"]').value = email;
-
-    showSection(s.id);
+    cur_section.querySelector('.error').innerHTML = '';
+    cur_section.querySelector('.info').innerHTML = 'A verification email has been sent to your inbox. Please enter the verification code and submit the form.';
+    cur_section.querySelector('input[name="email"]').value = email;
 }
 
 document.querySelector('form[name="email_verification_form"]').addEventListener('submit', function (e) {
