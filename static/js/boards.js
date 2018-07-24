@@ -75,7 +75,9 @@ function handleClick(e) {
 
     } else if (node = getNearestParentWithClass(e.target, 'board')) {
 
-        showLists(boards[getBoardIndex(node)]);
+        const input = node.querySelector('input');
+        if (input === null) showLists(boards[getBoardIndex(node)]);
+        else input.focus(); // board is being edited
 
     } else if (node = getNearestParentWithClass(e.target, 'create-list')) {
 
@@ -138,6 +140,8 @@ function closeBoard(board) {
 }
 
 function allowEditBoardName(board_node) {
+    board_node.querySelector('.edit-board').classList.add('highlight');
+
     const board_content_node = board_node.querySelector('.board-content')
     const board_title_node = board_content_node.querySelector('h1');
 
@@ -147,9 +151,6 @@ function allowEditBoardName(board_node) {
     board_content_node.innerHTML = input_html;
 
     const board_title_input_node = board_content_node.querySelector('input');
-    board_title_input_node.addEventListener('blur', function (e) {
-        if (this.value !== "") editBoardName(board_node, this.value);
-    });
     board_title_input_node.addEventListener('keyup', function (e) {
         if (e.key === "Enter" && this.value !== "") editBoardName(board_node, this.value);
     });
@@ -162,6 +163,7 @@ function editBoardName(board_node, new_name) {
     saveBoards(boards);
 
     board_node.querySelector('.board-content').innerHTML = `<h1> ${new_name}</h1>`;
+    board_node.querySelector('.edit-board').classList.remove('highlight');
 }
 
 function showLists(board) {

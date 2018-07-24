@@ -79,6 +79,14 @@ main {
     background-color: #000000;
 }
 
+.board-controls span.highlight {
+    background-color: #FF000080;
+}
+
+.board-controls span.highlight:hover {
+    background-color: #FF0000;
+}
+
 .board-like:hover {
     background-color: rgb(0, 96, 151);
     cursor: pointer;
