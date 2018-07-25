@@ -178,6 +178,9 @@
                 auth2.attachClickHandler(elem, {}, googleUser => {
                     const token = googleUser.getAuthResponse().id_token;
                     tryLogin({ provider: 'google', token: token });
+                }, err => {
+                    cur_section.querySelector('.error').innerHTML = `Error during authentication`;
+                    console.error(err);
                 });
             });
         });
