@@ -1,7 +1,9 @@
 const BOARDS_API_URL = '/api/me/boards';
 
 let boards;
-fetch(BOARDS_API_URL)
+fetch(BOARDS_API_URL, {
+    credentials: 'same-origin'
+})
     .then(res => res.json())
     .then(body => {
         if (body.error) {
@@ -306,6 +308,7 @@ function getNearestParentWithClass(node, req_class) {
 function saveBoards(boards) {
     fetch(BOARDS_API_URL, {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ boards: boards })
     })

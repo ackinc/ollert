@@ -115,6 +115,7 @@ function tryLogin(credentials) {
     fetch(LOGIN_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify(credentials)
     })
         .then(res => res.json())
@@ -153,6 +154,7 @@ function tryEmailVerification(email, code) {
     fetch(VERIFY_EMAIL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ email: email, code: code })
     })
         .then(res => res.json())
