@@ -54,6 +54,7 @@ function handleRequest(req, res) {
     let { method, url } = req;
     url = URL.parse(url).pathname;
     if (url === '/') url = '/index.html';
+    else if (url === '/reset_password') url = '/index.html';
 
     const is_auth_required = URLS_REQUIRING_AUTHENTICATION.indexOf(url) !== -1;
     const is_req_for_static_file = method === "GET" && !/^\/api\//.test(url);
@@ -404,7 +405,7 @@ function forgotPasswordRequestHandler(req, res) {
                 if (err) res.error(err, `Setting reset password token in redis`);
                 else {
                     res.json({ message: 'RESET_PASSWORD_EMAIL_SENT', validity: config.password_reset_settings.token_expiry });
-                    sendResetPasswordEmail(username, `${req.query.pwreset_url}?username=${username}&password_reset_code=${code}`);
+                    sendResetPasswordEmail(username, `${config.site_url}/reset_password?username=${username}&password_reset_code=${code}`);
                 }
             });
         }

@@ -48,7 +48,7 @@ document.querySelector('span.forgot-password').addEventListener('click', functio
     if (!username) {
         errorbox.innerHTML = 'Please enter your email address above before clicking "forgot password"';
     } else {
-        fetch(`${FORGOT_PASSWORD_API_URL}?username=${username}&pwreset_url=${encodeURI(document.location)}`)
+        fetch(`${FORGOT_PASSWORD_API_URL}?username=${username}`)
             .then(res => res.json())
             .then(body => {
                 if (body.error) {
