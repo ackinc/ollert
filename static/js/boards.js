@@ -6,7 +6,9 @@ fetch(BOARDS_API_URL, {
 })
     .then(res => res.json())
     .then(body => {
-        if (body.error) {
+        if (body.error === 'NOT_AUTHENTICATED') {
+            window.location.replace('/');
+        } else if (body.error) {
             document.querySelector('main .loading').innerHTML = 'Error retrieving boards.';
         } else {
             boards = body.boards;

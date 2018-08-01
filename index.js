@@ -18,7 +18,6 @@ const middleware = require('./libs/middleware');
 const util = require('./libs/util');
 
 const URLS_REQUIRING_AUTHENTICATION = [
-    '/boards.html',
     '/api/me/boards'
 ];
 
@@ -77,10 +76,11 @@ function handleRequest(req, res) {
                     //   1. user is editing boards
                     //   2. token expires before he is done
                     //   3. user tries to save edits
-                    //   4. redirected to home page since token has expired; edits lost!
+                    //   4. frontend redirects to home page on receiving 401 response
+                    //          since token has expired; edits lost!
                     // Possible fix: extend expiry time of cookie and token every time they are
                     //   successfully sent
-                    res.redirect('/');
+                    res.json({ error: 'NOT_AUTHENTICATED' }, 401);
                 } else if (req.url === '/index.html' && req.decoded !== null) {
                     // if an already-logged-in user lands on the home page,
                     //   redirect him to the boards page
