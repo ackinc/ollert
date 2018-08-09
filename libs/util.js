@@ -18,8 +18,13 @@ function stringToKeyValuePairs(s, sep, kvsep) {
     }, {});
 }
 
+function genericCallback(err) {
+    if (err) console.error(err);
+}
+
 module.exports = {
-    randomInt: randomInt,
-    randomString: randomString,
-    stringToKeyValuePairs: stringToKeyValuePairs
+    randomInt,
+    randomString,
+    stringToKeyValuePairs,
+    genericCallback
 };

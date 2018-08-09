@@ -202,12 +202,12 @@ function getUser(username, cb) {
     });
 }
 
-function createUser(username, password, verified, cb = genericCallback) {
+function createUser(username, password, verified, cb = util.genericCallback) {
     const collection = db.collection('users');
     collection.insertOne({ username: username, password: password, verified: verified, boards: '[]' }, cb);
 }
 
-function updateUser(username, data, cb = genericCallback) {
+function updateUser(username, data, cb = util.genericCallback) {
     db.collection('users').updateOne({ username: username }, { $set: data }, cb);
 }
 
@@ -290,7 +290,7 @@ function resendVerificationEmailRequestHandler(req, res) {
     });
 }
 
-function sendVerificationEmail(email, code, cb = genericCallback) {
+function sendVerificationEmail(email, code, cb = util.genericCallback) {
     const html = pug.renderFile(config.email_templates.EMAIL_VERIFICATION.template_path, { code: code });
     const options = {
         from: config.email.auth.user,
@@ -430,7 +430,7 @@ function forgotPasswordRequestHandler(req, res) {
     })
 }
 
-function sendResetPasswordEmail(email, pwreset_link, cb = genericCallback) {
+function sendResetPasswordEmail(email, pwreset_link, cb = util.genericCallback) {
     const html = pug.renderFile(config.email_templates.RESET_PASSWORD.template_path, { pwreset_link: pwreset_link });
     const options = {
         from: config.email.auth.user,
@@ -462,10 +462,4 @@ function resetPasswordRequestHandler(req, res) {
             });
         }
     });
-}
-
-
-
-function genericCallback(err) {
-    if (err) console.error(err);
 }
