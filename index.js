@@ -4,7 +4,6 @@ const FB = require('fb');
 const fs = require('fs');
 const http = require('http');
 const jwt = require('jsonwebtoken');
-const mongo_client = require('mongodb').MongoClient;
 const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library');
 const path = require('path');
@@ -14,6 +13,7 @@ const URL = require('url');
 
 const async = require('./libs/async');
 const config = require('./config');
+const db = require('./db');
 const middleware = require('./libs/middleware');
 const util = require('./libs/util');
 
@@ -22,13 +22,6 @@ const URLS_REQUIRING_AUTHENTICATION = [
 ];
 
 const google_auth_client = new OAuth2Client(config.google.client_id);
-
-let db;
-mongo_client.connect(config.db.url, { useNewUrlParser: true }, (err, client) => {
-    if (err) throw err;
-    db = client.db(config.db.dbname);
-    console.log(`Connected to database at ${config.db.url}/${config.db.dbname}`);
-});
 
 const redis = Redis.createClient(config.cache.url);
 redis.on('connect', () => console.log(`Connected to cache at ${config.cache.url}`));
@@ -192,28 +185,9 @@ function getMIMEType(filename) {
 
 
 
-// functions dealing with the DB
-function getUser(username, cb) {
-    const collection = db.collection('users');
-    collection.find({ username: username }).toArray((err, users) => {
-        if (err) cb(err);
-        else if (users.length > 0) cb(null, users[0]);
-        else cb(null, false);
-    });
-}
-
-function createUser(username, password, verified, cb = util.genericCallback) {
-    const collection = db.collection('users');
-    collection.insertOne({ username: username, password: password, verified: verified, boards: '[]' }, cb);
-}
-
-function updateUser(username, data, cb = util.genericCallback) {
-    db.collection('users').updateOne({ username: username }, { $set: data }, cb);
-}
-
 function retrieveUserBoards(req, res) {
     const username = req.decoded.username;
-    getUser(username, (err, user) => {
+    db.getUser(username, (err, user) => {
         if (err) res.error(err, `Retrieving user details from DB on receiving request for user's boards`);
         else if (!user) res.json({ error: 'USER_NOT_FOUND' }, 400);
         else res.json({ boards: JSON.parse(user.boards) });
@@ -223,7 +197,7 @@ function retrieveUserBoards(req, res) {
 function saveUserBoards(req, res) {
     const username = req.decoded.username;
     const boards = req.body.boards;
-    updateUser(username, { boards: JSON.stringify(boards) }, err => {
+    db.updateUser(username, { boards: JSON.stringify(boards) }, err => {
         if (err) res.error(err, `Saving user's boards to DB`);
         else res.json({ message: 'BOARDS_SAVED' });
     });
@@ -237,7 +211,7 @@ function registerNewUser(req, res) {
     bcrypt.hash(password, config.bcrypt.rounds, (err, hashed_p) => {
         if (err) res.error(err, `Encrypting password on new user registration`);
         else {
-            createUser(username, hashed_p, false, err => {
+            db.createUser(username, hashed_p, false, err => {
                 if (err && err.code === 11000) {
                     res.json({ error: 'USERNAME_IN_USE' }, 400);
                 } else if (err) {
@@ -276,7 +250,7 @@ function beginEmailVerification(email, cb) {
 }
 
 function resendVerificationEmailRequestHandler(req, res) {
-    getUser(req.query.email, (err, user) => {
+    db.getUser(req.query.email, (err, user) => {
         if (err) res.error(err, `Retrieving user details on request to resend verification email`);
         else if (!user) res.json({ error: 'USER_NOT_FOUND' }, 400);
         else beginEmailVerification(req.query.email, err => {
@@ -302,7 +276,7 @@ function sendVerificationEmail(email, code, cb = util.genericCallback) {
 }
 
 function emailVerificationRequestHandler(req, res) {
-    getUser(req.body.email, (err, user) => {
+    db.getUser(req.body.email, (err, user) => {
         if (err) res.error(err, `Retrieving user details on request to resend verification email`);
         else if (!user) res.json({ error: 'USER_NOT_FOUND' }, 400);
         else if (user.verified) res.json({ error: 'USER_ALREADY_VERIFIED' }, 400);
@@ -311,7 +285,7 @@ function emailVerificationRequestHandler(req, res) {
                 if (err) res.error(err, `Retrieving email verification token from redis`);
                 else if (reply === null) res.json({ error: 'TOKEN_EXPIRED' }, 400);
                 else if (reply !== req.body.code) res.json({ error: 'TOKEN_INCORRECT' }, 400);
-                else updateUser(user.username, { verified: true }, err => {
+                else db.updateUser(user.username, { verified: true }, err => {
                     if (err) res.error(err, `Updating user's verified status`);
                     else handleLoginSuccess({ username: req.body.email }, res);
                 });
@@ -341,10 +315,10 @@ function loginWithGoogle(token, res) {
         } else {
             const username = ticket.getPayload().email;
 
-            createUser(username, util.randomString(12), true, err => {
+            db.createUser(username, util.randomString(12), true, err => {
                 if (err && err.code === 11000) {
                     handleLoginSuccess({ username: username }, res);
-                    updateUser(username, { verified: true });
+                    db.updateUser(username, { verified: true });
                 } else if (err) {
                     res.error(err, `Creating user on login with Google`);
                 } else {
@@ -365,10 +339,10 @@ function loginWithFacebook(token, res) {
         } else {
             const username = response.email;
 
-            createUser(username, util.randomString(12), true, err => {
+            db.createUser(username, util.randomString(12), true, err => {
                 if (err && err.code === 11000) {
                     handleLoginSuccess({ username: username }, res);
-                    updateUser(username, { verified: true });
+                    db.updateUser(username, { verified: true });
                 } else if (err) {
                     res.error(err, `Creating user on login with Facebook`);
                 } else {
@@ -380,7 +354,7 @@ function loginWithFacebook(token, res) {
 }
 
 function loginWithPassword(username, password, res) {
-    getUser(username, (err, user) => {
+    db.getUser(username, (err, user) => {
         if (err) {
             res.error(err, `Retrieving user from DB`);
         } else if (!user) {
@@ -412,7 +386,7 @@ function loginWithPassword(username, password, res) {
 
 function forgotPasswordRequestHandler(req, res) {
     const username = req.query.username;
-    getUser(username, (err, user) => {
+    db.getUser(username, (err, user) => {
         if (err) {
             res.error(err, `Retrieving user from DB after receiving forgot password request`);
         } else if (!user) {
@@ -442,7 +416,7 @@ function sendResetPasswordEmail(email, pwreset_link, cb = util.genericCallback) 
 }
 
 function resetPasswordRequestHandler(req, res) {
-    getUser(req.body.username, (err, user) => {
+    db.getUser(req.body.username, (err, user) => {
         if (err) res.error(err, `Retrieving user details from DB on reset password request`);
         else if (!user) res.json({ error: 'USER_NOT_FOUND' }, 400);
         else {
@@ -453,7 +427,7 @@ function resetPasswordRequestHandler(req, res) {
                 else {
                     bcrypt.hash(req.body.password, config.bcrypt.rounds, (err, hashed_p) => {
                         if (err) res.error(err, `Encrypting new password`);
-                        else updateUser(req.body.username, { verified: true, password: hashed_p }, err => {
+                        else db.updateUser(req.body.username, { verified: true, password: hashed_p }, err => {
                             if (err) res.error(err, `Updating user's password`);
                             else res.json({ message: 'PASSWORD_UPDATED' });
                         });
