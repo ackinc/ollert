@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const mongo_client = require('mongodb').MongoClient;
 
 const config = require('../config');
@@ -11,12 +12,15 @@ mongo_client.connect(config.db.url, { useNewUrlParser: true }, (err, client) => 
 });
 
 function createUser(username, password, verified, cb = util.genericCallback) {
-    db.collection('users').insertOne({
-        username,
-        password,
-        verified,
-        boards: '[]'
-    }, cb);
+    bcrypt.hash(password, config.bcrypt.rounds, (err, password) => {
+        if (err) cb(err);
+        else db.collection('users').insertOne({
+            username,
+            password,
+            verified,
+            boards: '[]'
+        }, cb);
+    });
 }
 
 function getUser(username, cb = util.genericCallback) {
