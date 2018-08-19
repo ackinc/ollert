@@ -8,13 +8,13 @@ const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library');
 const path = require('path');
 const pug = require('pug');
-const Redis = require('redis');
 const URL = require('url');
 
 const async = require('./libs/async');
 const config = require('./config');
 const db = require('./db');
 const middleware = require('./libs/middleware');
+const redis = require('./cache');
 const util = require('./libs/util');
 
 const URLS_REQUIRING_AUTHENTICATION = [
@@ -23,9 +23,6 @@ const URLS_REQUIRING_AUTHENTICATION = [
 
 const google_auth_client = new OAuth2Client(config.google.client_id);
 
-const redis = Redis.createClient(config.cache.url);
-redis.on('connect', () => console.log(`Connected to cache at ${config.cache.url}`));
-redis.on('error', err => { throw err; });
 
 const mail_transporter = nodemailer.createTransport(config.email);
 
