@@ -10,7 +10,7 @@ const all_sections = document.querySelectorAll('.user-action-section');
 let cur_section;
 
 const query_obj = util.parseQueryString(document.location.search.substr(1));
-if (query_obj.username && query_obj.password_reset_code) {
+if (query_obj.username && query_obj.password_reset_code) { // user got here by clicking on the 'reset password' link we sent
     showSection('reset_password_section');
     cur_section.querySelector('input[name="username"]').value = query_obj.username;
     cur_section.querySelector('input[name="code"]').value = query_obj.password_reset_code;
