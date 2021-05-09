@@ -1,7 +1,7 @@
 {
-  "name": "trello-clone",
+  "name": "ollert",
   "version": "1.0.0",
-  "description": "Project 1: A Trello clone in Vanilla JS",
+  "description": "A Trello clone",
   "main": "index.js",
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -19,17 +19,17 @@
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "start": "pm2 start index.js --name trello-clone",
+    "start": "pm2 start index.js --name ollert",
     "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ackinc/trello-clone.git"
+    "url": "git+https://github.com/ackinc/ollert.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ackinc/trello-clone/issues"
+    "url": "https://github.com/ackinc/ollert/issues"
   },
-  "homepage": "https://github.com/ackinc/trello-clone#readme"
+  "homepage": "https://github.com/ackinc/ollert#readme"
 }
