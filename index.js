@@ -72,6 +72,8 @@ function handleRequest(req, res) {
   function continueHandlingRequest() {
     if (is_req_for_static_file) {
       res.sendFile(`./static${url}`);
+    } else if (method === "GET" && url === "/api/health_check") {
+      res.json({ status: "OK" });
     } else if (method === "POST" && url === "/api/register") {
       auth.registerNewUser(req, res);
     } else if (method === "POST" && url === "/api/login") {
@@ -88,6 +90,8 @@ function handleRequest(req, res) {
       users.retrieveBoards(req, res);
     } else if (method === "POST" && url === "/api/me/boards") {
       users.saveBoards(req, res);
+    } else {
+      res.json({ error: "PATH_NOT_FOUND" }, 404);
     }
   }
 }
