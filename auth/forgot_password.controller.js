@@ -32,7 +32,7 @@ function forgotPasswordRequestHandler(req, res) {
             });
 
             const pwreset_link = `${process.env.SITE_URL}/reset_password?username=${username}&password_reset_code=${code}`;
-            mailer.sendEmail("RESET_PASSWORD", username, { pwreset_link });
+            mailer.sendEmail("passwordReset", username, { pwreset_link });
           }
         }
       );

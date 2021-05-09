@@ -20,7 +20,7 @@ function beginEmailVerification(email, cb) {
       if (err) {
         cb(err);
       } else {
-        mailer.sendEmail("EMAIL_VERIFICATION", email, { code: code });
+        mailer.sendEmail("emailVerification", email, { code: code });
         cb();
       }
     }
