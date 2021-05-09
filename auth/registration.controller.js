@@ -2,8 +2,8 @@ const db = require("../db");
 const ev = require("./email_verification.controller");
 
 function registerNewUser(req, res) {
-  const username = req.body.username,
-    password = req.body.password;
+  const { username, password } = req.body;
+
   db.createUser(username, password, false, (err) => {
     if (err && err.code === 11000) {
       res.json({ error: "USERNAME_IN_USE" }, 400);
