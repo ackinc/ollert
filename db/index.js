@@ -7,7 +7,7 @@ const util = require("../libs/util");
 let db;
 mongo_client.connect(
   config.db.url,
-  { useNewUrlParser: true },
+  { useNewUrlParser: true, useUnifiedTopology: true },
   (err, client) => {
     if (err) throw err;
     db = client.db(config.db.dbname);
