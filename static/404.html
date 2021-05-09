@@ -24,5 +24,20 @@
       <p class="copyright">&copy; Anirudh Nimmagadda 2021</p>
       <p><a href="/privacy-policy.html" target="_blank">Privacy Policy</a></p>
     </footer>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=%{{GOOGLE_ANALYTICS_ID}}"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "%{{GOOGLE_ANALYTICS_ID}}");
+    </script>
   </body>
 </html>

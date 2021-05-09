@@ -69,7 +69,9 @@ function handleRequest(req, res) {
 
   function continueHandlingRequest() {
     if (is_req_for_static_file) {
-      res.sendFile(`./static${url}`);
+      res.sendFile(`./static${url}`, {
+        GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID,
+      });
     } else if (method === "GET" && url === "/api/health_check") {
       res.json({ status: "OK" });
     } else if (method === "POST" && url === "/api/register") {
@@ -133,13 +135,22 @@ function sendRedirectResponse(location) {
   this.end();
 }
 
-function sendStaticFileResponse(filename, status_code = 200) {
+function sendStaticFileResponse(filename, variables, status_code = 200) {
+  const isHtmlFile = path.extname(filename) === ".html";
+
   fs.readFile(filename, (err, data) => {
     if (err && err.code === "ENOENT") {
       this.sendFile("./static/404.html", 404);
     } else if (err) {
       this.error(err, `Reading file from file system`);
     } else {
+      if (isHtmlFile) {
+        data = data.toString("utf-8");
+        for (let v in variables) {
+          data = data.replace(new RegExp(`%{{${v}}}`, "g"), variables[v]);
+        }
+      }
+
       this.statusCode = status_code;
       this.setHeader("Content-type", getMIMEType(filename));
       this.end(data);
