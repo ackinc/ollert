@@ -69,3 +69,29 @@ header h2 {
   cursor: pointer;
   text-decoration: underline;
 }
+
+footer {
+  position: absolute;
+  bottom: 0;
+
+  background-color: var(--main-color);
+  color: #dddddd;
+
+  font-size: 0.8em;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px 0;
+  width: 100%;
+}
+
+footer p.copyright {
+  margin-bottom: 20px;
+}
+
+footer p.copyright :hover {
+  color: white;
+}
