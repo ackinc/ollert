@@ -20,7 +20,7 @@
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "start": "pm2 start index.js --name ollert",
+    "start": "node index.js",
     "dev": "nodemon index.js"
   },
   "repository": {
