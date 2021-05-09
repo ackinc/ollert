@@ -1,164 +1,179 @@
 <!DOCTYPE html>
 
 <html>
-
-<head>
+  <head>
     <meta charset="utf-8" />
-    <title>Trello Clone</title>
+    <title>Ollert</title>
 
     <link rel="stylesheet" href="./css/reset.css" />
     <link rel="stylesheet" href="./css/global.css" />
     <link rel="stylesheet" href="./css/index.css" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
-</head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
 
-<body>
+  <body>
     <header>
-        <h1>
-            <a href="">A Trello Clone</a>
-        </h1>
-        <h2>(in vanilla Javascript)</h2>
+      <h1>
+        <a href="">Ollert</a>
+      </h1>
     </header>
 
     <main>
-        <section id="registration_section" class="user-action-section">
-            <h1>Register</h1>
-            <div class="split">
-                <form name="registration_form" class="left">
-                    <div class="input-group">
-                        <label>Email</label>
-                        <input type="email" name="username" autofocus required />
-                    </div>
-
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" name="password" required />
-                    </div>
-
-                    <div class="input-group">
-                        <label>Confirm password</label>
-                        <input type="password" name="c_password" required />
-                    </div>
-
-                    <div class="info"></div>
-                    <div class="error"></div>
-
-                    <button type="submit">Sign me up!</button>
-                </form>
-
-                <div class="separator"></div>
-
-                <div class="social-login right">
-                    <h1>Sign up with</h1>
-                    <div class="btn-social-login btn-google">
-                        <img src="./images/google_logo.png" /> Google
-                    </div>
-                    <div class="btn-social-login btn-facebook">
-                        <img src="./images/fb_logo_color.png" /> Facebook
-                    </div>
-                </div>
+      <section id="registration_section" class="user-action-section">
+        <h1>Register</h1>
+        <div class="split">
+          <form name="registration_form" class="left">
+            <div class="input-group">
+              <label>Email</label>
+              <input type="email" name="username" autofocus required />
             </div>
 
-            <p>Already registered? Sign in
-                <span class="change-active-section hyperlink" data-show="login_section">here</span>
-            </p>
-        </section>
-
-        <section id="login_section" class="user-action-section">
-            <h1>Login</h1>
-            <div class="split">
-                <form name="login_form" class="left">
-
-                    <div class="input-group">
-                        <label>Email</label>
-                        <input type="email" name="username" required />
-                    </div>
-
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" name="password" required />
-                        <p class="subtext">
-                            <span class="forgot-password hyperlink">Forgot password?</span>
-                        </p>
-                    </div>
-
-                    <div class="info"></div>
-                    <div class="error"></div>
-
-                    <button type="submit">Sign me in!</button>
-                </form>
-
-                <div class="separator"></div>
-
-                <div class="social-login right">
-                    <h1>Sign in with</h1>
-                    <div class="btn-social-login btn-google">
-                        <img src="./images/google_logo.png" /> Google
-                    </div>
-                    <div class="btn-social-login btn-facebook">
-                        <img src="./images/fb_logo_color.png" /> Facebook
-                    </div>
-                </div>
-
+            <div class="input-group">
+              <label>Password</label>
+              <input type="password" name="password" required />
             </div>
 
-            <p>New user? Sign up
-                <span class="change-active-section hyperlink" data-show="registration_section">here</span>
-            </p>
-        </section>
+            <div class="input-group">
+              <label>Confirm password</label>
+              <input type="password" name="c_password" required />
+            </div>
 
-        <!-- This form will only be shown when
+            <div class="info"></div>
+            <div class="error"></div>
+
+            <button type="submit">Sign me up!</button>
+          </form>
+
+          <div class="separator"></div>
+
+          <div class="social-login right">
+            <h1>Sign up with</h1>
+            <div class="btn-social-login btn-google">
+              <img src="./images/google_logo.png" /> Google
+            </div>
+            <div class="btn-social-login btn-facebook">
+              <img src="./images/fb_logo_color.png" /> Facebook
+            </div>
+          </div>
+        </div>
+
+        <p>
+          Already registered? Sign in
+          <span
+            class="change-active-section hyperlink"
+            data-show="login_section"
+            >here</span
+          >
+        </p>
+      </section>
+
+      <section id="login_section" class="user-action-section">
+        <h1>Login</h1>
+        <div class="split">
+          <form name="login_form" class="left">
+            <div class="input-group">
+              <label>Email</label>
+              <input type="email" name="username" required />
+            </div>
+
+            <div class="input-group">
+              <label>Password</label>
+              <input type="password" name="password" required />
+              <p class="subtext">
+                <span class="forgot-password hyperlink">Forgot password?</span>
+              </p>
+            </div>
+
+            <div class="info"></div>
+            <div class="error"></div>
+
+            <button type="submit">Sign me in!</button>
+          </form>
+
+          <div class="separator"></div>
+
+          <div class="social-login right">
+            <h1>Sign in with</h1>
+            <div class="btn-social-login btn-google">
+              <img src="./images/google_logo.png" /> Google
+            </div>
+            <div class="btn-social-login btn-facebook">
+              <img src="./images/fb_logo_color.png" /> Facebook
+            </div>
+          </div>
+        </div>
+
+        <p>
+          New user? Sign up
+          <span
+            class="change-active-section hyperlink"
+            data-show="registration_section"
+            >here</span
+          >
+        </p>
+      </section>
+
+      <!-- This form will only be shown when
             1. user successfully completes the password-based registration process
             2. user tries to log in with an unverified email -->
-        <section id="email_verification_section" class="user-action-section">
-            <h1>Verify email address</h1>
-            <form name="email_verification_form">
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="text" name="email" required disabled />
-                </div>
-                <div class="input-group">
-                    <label>Verification code</label>
-                    <input type="text" name="code" required />
-                </div>
-                <div class="info"></div>
-                <div class="error"></div>
-                <button type="submit">Go!</button>
+      <section id="email_verification_section" class="user-action-section">
+        <h1>Verify email address</h1>
+        <form name="email_verification_form">
+          <div class="input-group">
+            <label>Email</label>
+            <input type="text" name="email" required disabled />
+          </div>
+          <div class="input-group">
+            <label>Verification code</label>
+            <input type="text" name="code" required />
+          </div>
+          <div class="info"></div>
+          <div class="error"></div>
+          <button type="submit">Go!</button>
+        </form>
 
-            </form>
+        <p>
+          Need us to resend your verification email? Click
+          <span class="resend_verification_email hyperlink">here</span>
+        </p>
+      </section>
 
-            <p>Need us to resend your verification email? Click
-                <span class="resend_verification_email hyperlink">here</span>
-            </p>
-        </section>
-
-        <!-- This section will only be shown when
+      <!-- This section will only be shown when
             1. user clicks link in password reset email -->
-        <section id="reset_password_section" class="user-action-section">
-            <h1>Reset Password</h1>
-            <form name="reset_password_form">
-                <input type="hidden" name="username" required />
-                <input type="hidden" name="code" required />
+      <section id="reset_password_section" class="user-action-section">
+        <h1>Reset Password</h1>
+        <form name="reset_password_form">
+          <input type="hidden" name="username" required />
+          <input type="hidden" name="code" required />
 
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" name="password" required />
-                </div>
+          <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" required />
+          </div>
 
-                <div class="input-group">
-                    <label>Confirm password</label>
-                    <input type="password" name="c_password" required />
-                </div>
+          <div class="input-group">
+            <label>Confirm password</label>
+            <input type="password" name="c_password" required />
+          </div>
 
-                <div class="info"></div>
-                <div class="error"></div>
-                <button type="submit">Reset Password</button>
-            </form>
+          <div class="info"></div>
+          <div class="error"></div>
+          <button type="submit">Reset Password</button>
+        </form>
 
-            <p>Changed your mind? Go back to
-                <span class="change-active-section hyperlink" data-show="login_section">login</span>
-            </p>
-        </section>
+        <p>
+          Changed your mind? Go back to
+          <span
+            class="change-active-section hyperlink"
+            data-show="login_section"
+            >login</span
+          >
+        </p>
+      </section>
     </main>
 
     <script src="./js/util.js"></script>
@@ -166,51 +181,63 @@
 
     <script src="https://apis.google.com/js/api:client.js"></script>
     <script>
-        gapi.load('auth2', function () {
-            // Retrieve the singleton for the GoogleAuth library and set up the client.
-            auth2 = gapi.auth2.init({
-                client_id: '396738301585-h6sjke032j2nlvn6gc2d41so8d2ins53.apps.googleusercontent.com',
-                cookiepolicy: 'single_host_origin',
-                // Request scopes in addition to 'profile' and 'email'
-                // scope: 'additional_scope'
-            });
-            document.querySelectorAll('.btn-google').forEach(elem => {
-                auth2.attachClickHandler(elem, {}, googleUser => {
-                    const token = googleUser.getAuthResponse().id_token;
-                    tryLogin({ provider: 'google', token: token });
-                }, err => {
-                    cur_section.querySelector('.error').innerHTML = `Error during authentication`;
-                    console.error(err);
-                });
-            });
+      gapi.load("auth2", function () {
+        // Retrieve the singleton for the GoogleAuth library and set up the client.
+        auth2 = gapi.auth2.init({
+          client_id:
+            "774316831707-0b6pq0ugoddf5k643p8cumgrctpcp9tf.apps.googleusercontent.com",
+          cookiepolicy: "single_host_origin",
+          // Request scopes in addition to 'profile' and 'email'
+          // scope: 'additional_scope'
         });
+        document.querySelectorAll(".btn-google").forEach((elem) => {
+          auth2.attachClickHandler(
+            elem,
+            {},
+            (googleUser) => {
+              const token = googleUser.getAuthResponse().id_token;
+              tryLogin({ provider: "google", token: token });
+            },
+            (err) => {
+              cur_section.querySelector(
+                ".error"
+              ).innerHTML = `Error during authentication`;
+              console.error(err);
+            }
+          );
+        });
+      });
     </script>
 
     <script src="https://connect.facebook.net/en_US/sdk.js"></script>
     <script>
-        window.fbAsyncInit = function () {
-            FB.init({
-                appId: '1787740664771115',
-                cookie: true,  // enable cookies to allow the server to access the session
-                xfbml: true,  // parse social plugins on this page
-                version: 'v3.0' // use graph api version 3.0
-            });
+      window.fbAsyncInit = function () {
+        FB.init({
+          appId: "984967672309502",
+          cookie: true, // enable cookies to allow the server to access the session
+          xfbml: true, // parse social plugins on this page
+          version: "v3.0", // use graph api version 3.0
+        });
 
-            document.querySelectorAll('.btn-facebook').forEach(elem => {
-                elem.addEventListener('click', function (e) {
-                    FB.login(response => {
-                        if (response.status !== 'connected') {
-                            cur_section.querySelector('.error').innerHTML = `Authentication error.`;
-                            return;
-                        };
+        document.querySelectorAll(".btn-facebook").forEach((elem) => {
+          elem.addEventListener("click", function (e) {
+            FB.login(
+              (response) => {
+                if (response.status !== "connected") {
+                  cur_section.querySelector(
+                    ".error"
+                  ).innerHTML = `Authentication error.`;
+                  return;
+                }
 
-                        const token = response.authResponse.accessToken;
-                        tryLogin({ provider: 'facebook', token: token });
-                    }, { scope: 'email' });
-                });
-            });
-        }
+                const token = response.authResponse.accessToken;
+                tryLogin({ provider: "facebook", token: token });
+              },
+              { scope: "email" }
+            );
+          });
+        });
+      };
     </script>
-</body>
-
+  </body>
 </html>

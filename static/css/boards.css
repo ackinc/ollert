@@ -1,299 +1,299 @@
 header button.logout {
-    background-color: rgba(120, 120, 120, 0.1);
-    color: white;
+  background-color: rgba(120, 120, 120, 0.1);
+  color: white;
 
-    position: absolute;
-    right: 25px;
-    top: 50%;
-    transform: translateY(-50%);
+  position: absolute;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
 
-    border: 0px;
-    border-radius: 2px;
-    padding: 10px 30px;
+  border: 0px;
+  border-radius: 2px;
+  padding: 10px 30px;
 
-    box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.3);
 }
 
 header button.logout:hover {
-    background-color: whitesmoke;
-    color: rgba(0, 0, 0, 0.8);
-    cursor: pointer;
+  background-color: whitesmoke;
+  color: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
 }
 
 main {
-    flex: 1 0 0;
-    padding: 50px 0px 0px 100px;
+  flex: 1 0 0;
+  padding: 50px 0px 0px 100px;
 }
 
 .loading {
-    height: 100%;
-    width: 100;
+  height: 100%;
+  width: 100;
 }
 
 .boards {
-    display: flex;
-    flex-flow: row wrap;
+  display: flex;
+  flex-flow: row wrap;
 
-    overflow-y: auto;
+  overflow-y: auto;
 }
 
 .lists {
-    white-space: nowrap;
-    overflow-x: auto;
+  white-space: nowrap;
+  overflow-x: auto;
 }
 
 .board-like {
-    background-color: var(--main-color);
-    border-radius: 5px;
+  background-color: var(--main-color);
+  border-radius: 5px;
 
-    color: white;
+  color: white;
 
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    font-weight: bold;
+  font-weight: bold;
 
-    margin-right: 50px;
-    margin-bottom: 50px;
-    padding-left: 5px;
-    position: relative;
+  margin-right: 50px;
+  margin-bottom: 50px;
+  padding-left: 5px;
+  position: relative;
 
-    width: 200px;
-    height: 100px;
+  width: 200px;
+  height: 100px;
 }
 
 .board-controls {
-    font-size: 0.75em;
+  font-size: 0.75em;
 
-    position: absolute;
-    top: 0px;
-    right: -3px;
+  position: absolute;
+  top: 0px;
+  right: -3px;
 }
 
 .board-controls span {
-    background-color: #00000080;
-    padding: 3px;
+  background-color: #00000080;
+  padding: 3px;
 }
 
 .board-controls span:hover {
-    background-color: #000000;
+  background-color: #000000;
 }
 
 .board-controls span.highlight {
-    background-color: #FF000080;
+  background-color: #ff000080;
 }
 
 .board-controls span.highlight:hover {
-    background-color: #FF0000;
+  background-color: #ff0000;
 }
 
 .board-like:hover {
-    background-color: rgb(0, 96, 151);
-    cursor: pointer;
+  background-color: rgb(0, 96, 151);
+  cursor: pointer;
 }
 
 .create-board {
-    background-color: rgb(184, 184, 184);
-    border: 0px;
-    color: #555555;
-    font-weight: normal;
+  background-color: rgb(184, 184, 184);
+  border: 0px;
+  color: #555555;
+  font-weight: normal;
 }
 
 .create-board:hover {
-    background-color: rgb(148, 148, 148);
-    color: #222222;
+  background-color: rgb(148, 148, 148);
+  color: #222222;
 }
 
 .board-name-input {
-    border: 0px;
-    border-radius: 2px;
+  border: 0px;
+  border-radius: 2px;
 
-    background-color: var(--main-color);
-    color: white;
+  background-color: var(--main-color);
+  color: white;
 
-    height: 30px;
-    width: 95%;
+  height: 30px;
+  width: 95%;
 }
 
 .lists div:last-child {
-    display: inline-block;
+  display: inline-block;
 }
 
 .list-like {
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
 
-    box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
 
-    display: inline-block;
-    vertical-align: top;
+  display: inline-block;
+  vertical-align: top;
 
-    position: relative;
+  position: relative;
 
-    margin-right: 50px;
-    max-height: 95%;
-    overflow-y: auto;
-    width: 240px;
+  margin-right: 50px;
+  max-height: 95%;
+  overflow-y: auto;
+  width: 240px;
 }
 
 .list .list-delete {
-    position: absolute;
-    top: 2px;
-    right: 2px;
+  position: absolute;
+  top: 2px;
+  right: 2px;
 
-    color: white;
-    font-size: 0.5em;
+  color: white;
+  font-size: 0.5em;
 }
 
 .list .list-delete:hover {
-    color: black;
-    cursor: pointer;
+  color: black;
+  cursor: pointer;
 
-    transform: scale(2);
+  transform: scale(2);
 }
 
 .list h1 {
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
 
-    color: gray;
+  color: gray;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-    font-weight: bold;
-    font-size: 1.1em;
+  font-weight: bold;
+  font-size: 1.1em;
 
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 
-    height: 40px;
-    width: 100%;
+  height: 40px;
+  width: 100%;
 }
 
 .list ol {
-    width: 100%;
+  width: 100%;
 }
 
 .list ol li {
-    background-color: linear-gradient(white, gray);
-    border-radius: 5px;
-    box-shadow: 0 0 2px 0px rgba(0, 0, 0, 0.5);
+  background-color: linear-gradient(white, gray);
+  border-radius: 5px;
+  box-shadow: 0 0 2px 0px rgba(0, 0, 0, 0.5);
 
-    color: rgba(0, 0, 0, 0.5);
+  color: rgba(0, 0, 0, 0.5);
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-    font-size: 0.8em;
+  font-size: 0.8em;
 
-    margin: 0px auto 10px auto;
-    padding: 8px 10px;
+  margin: 0px auto 10px auto;
+  padding: 8px 10px;
 
-    min-height: 40px;
-    width: 90%;
+  min-height: 40px;
+  width: 90%;
 }
 
 .list ol li.done {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }
 
 .list ol li:hover {
-    background-color: aliceblue;
-    cursor: pointer;
+  background-color: aliceblue;
+  cursor: pointer;
 }
 
 .list ol li .list-item-desc {
-    line-height: 1.2em;
-    white-space: normal;
+  line-height: 1.2em;
+  white-space: normal;
 }
 
 .list ol li .list-item-controls.hidden {
-    opacity: 0;
+  opacity: 0;
 }
 
 .list ol li .list-item-controls span {
-    padding: 5px 5px;
+  padding: 5px 5px;
 }
 
 .list ol li .list-item-controls span:hover {
-    background-color: gray;
+  background-color: gray;
 }
 
 .list .add-list-item {
-    margin-bottom: 10px;
-    text-align: center;
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 .list input {
-    border: 0px;
-    border-radius: 5px;
+  border: 0px;
+  border-radius: 5px;
 
-    padding-left: 10px;
+  padding-left: 10px;
 
-    height: 35px;
-    width: 90%;
+  height: 35px;
+  width: 90%;
 }
 
 #new-list-control-div {
-    margin-right: 50px;
+  margin-right: 50px;
 }
 
 .create-list {
-    border: 0px;
-    border-radius: 5px;
+  border: 0px;
+  border-radius: 5px;
 
-    background-color: rgba(0, 0, 0, 0.1);
-    color: white;
+  background-color: rgba(0, 0, 0, 0.1);
+  color: white;
 
-    height: 40px;
-    width: 200px;
+  height: 40px;
+  width: 200px;
 }
 
 .create-list:hover {
-    background-color: rgba(0, 0, 0, 0.2);
-    color: gray;
-    cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.2);
+  color: gray;
+  cursor: pointer;
 }
 
 #new-list-form {
-    background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
 
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-around;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
 
-    padding: 10px 5px;
+  padding: 10px 5px;
 
-    width: 225px;
+  width: 225px;
 }
 
 #new-list-form input {
-    border-radius: 5px;
-    border: 0px;
-    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  border: 0px;
+  box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
 
-    padding: 5px;
-    margin-bottom: 10px;
+  padding: 5px;
+  margin-bottom: 10px;
 
-    height: 40px;
-    width: 95%;
+  height: 40px;
+  width: 95%;
 }
 
 #new-list-form button {
-    background-color: green;
-    border-radius: 5px;
-    border: 0px;
-    box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
+  background-color: green;
+  border-radius: 5px;
+  border: 0px;
+  box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
 
-    color: white;
+  color: white;
 
-    height: 40px;
-    width: 40%;
+  height: 40px;
+  width: 40%;
 }
 
 #new-list-form button:hover {
-    background-color: darkgreen;
-    cursor: pointer;
+  background-color: darkgreen;
+  cursor: pointer;
 }
