@@ -4,7 +4,6 @@ const FB = require("fb");
 const { OAuth2Client } = require("google-auth-library");
 
 const common = require("./common");
-const config = require("../config");
 const db = require("../db");
 const ev = require("./email_verification.controller");
 
@@ -25,7 +24,7 @@ function loginWithGoogle(req, res) {
   const token = req.body.token;
 
   googleOauth2Client.verifyIdToken(
-    { idToken: token, audience: config.google.client_id },
+    { idToken: token, audience: GOOGLE_OAUTH2_CLIENT_ID },
     (err, ticket) => {
       if (err) {
         res.error(err, `Verifying Google ID token on login attempt`);
@@ -51,7 +50,7 @@ function loginWithFacebook(req, res) {
   const token = req.body.token;
 
   const appsecret_proof = crypto
-    .createHmac("sha256", config.facebook.app_secret)
+    .createHmac("sha256", process.env.FB_APP_SECRET)
     .update(token)
     .digest("hex");
   FB.api(

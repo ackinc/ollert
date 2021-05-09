@@ -10,14 +10,12 @@ const util = require("../libs/util");
 // 2. Unverified user tries to login
 // 3. User requests "resend verification email"
 function beginEmailVerification(email, cb) {
-  const code = util.randomString(
-    config.verification_settings.email.token_length
-  );
+  const code = util.randomString(config.emailVerification.tokenLength);
   redis.set(
     `email_verification_token:${email}`,
     code,
     "EX",
-    config.verification_settings.email.token_expiry,
+    config.emailVerification.tokenExpiry,
     (err) => {
       if (err) {
         cb(err);

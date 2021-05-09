@@ -4,17 +4,23 @@ const pug = require("pug");
 const config = require("../config");
 const util = require("../libs/util");
 
-const mail_transporter = nodemailer.createTransport(config.smtp);
+const { SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS } = process.env;
+const mailTransporter = nodemailer.createTransport({
+  host: SMTP_HOST,
+  port: SMTP_PORT,
+  secure: SMTP_SECURE,
+  auth: { user: SMTP_USER, pass: SMTP_PASS },
+});
 
 function sendEmail(type, to, data, cb = util.genericCallback) {
-  const html = pug.renderFile(config.email_templates[type].template_path, data);
+  const html = pug.renderFile(config.emailTemplates[type].templatePath, data);
   const options = {
-    from: config.email_sending_address,
+    from: process.env.EMAIL_FROM_ADDRESS,
     to: to,
-    subject: config.email_templates[type].subject,
+    subject: config.emailTemplates[type].subject,
     html: html,
   };
-  mail_transporter.sendMail(options, cb);
+  mailTransporter.sendMail(options, cb);
 }
 
 module.exports = { sendEmail };

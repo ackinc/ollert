@@ -12,7 +12,3 @@ A terrible-looking kanban board; built with NodeJS and VanillaJS
 
 - MongoDB: database; there must be a unique index on the `username` field of the `users` collection
 - Redis: for email-verification and password-reset token storage
-
-## To do
-
-- Move vars that should be in env out of the config file and into env

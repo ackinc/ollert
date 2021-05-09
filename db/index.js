@@ -4,21 +4,20 @@ const mongo_client = require("mongodb").MongoClient;
 const config = require("../config");
 const util = require("../libs/util");
 
+const { DATABASE_NAME, DATABASE_URL } = process.env;
 let db;
 mongo_client.connect(
-  config.db.url,
+  DATABASE_URL,
   { useNewUrlParser: true, useUnifiedTopology: true },
   (err, client) => {
     if (err) throw err;
-    db = client.db(config.db.dbname);
-    console.log(
-      `Connected to database at ${config.db.url}/${config.db.dbname}`
-    );
+    db = client.db(DATABASE_NAME);
+    console.log(`Connected to database at ${DATABASE_URL}`);
   }
 );
 
 function createUser(username, password, verified, cb = util.genericCallback) {
-  bcrypt.hash(password, config.bcrypt.rounds, (err, password) => {
+  bcrypt.hash(password, config.passwordSaltRounds, (err, password) => {
     if (err) cb(err);
     else
       db.collection("users").insertOne(

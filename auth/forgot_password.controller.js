@@ -17,23 +17,21 @@ function forgotPasswordRequestHandler(req, res) {
     } else if (!user) {
       res.json({ error: "USER_NOT_FOUND" }, 400);
     } else {
-      const code = util.randomString(
-        config.password_reset_settings.token_length
-      );
+      const code = util.randomString(config.passwordReset.tokenLength);
       redis.set(
         `reset_password_token:${username}`,
         code,
         "EX",
-        config.password_reset_settings.token_expiry,
+        config.passwordReset.tokenExpiry,
         (err) => {
           if (err) res.error(err, `Setting reset password token in redis`);
           else {
             res.json({
               message: "RESET_PASSWORD_EMAIL_SENT",
-              validity: config.password_reset_settings.token_expiry,
+              validity: config.passwordReset.tokenExpiry,
             });
 
-            const pwreset_link = `${config.site_url}/reset_password?username=${username}&password_reset_code=${code}`;
+            const pwreset_link = `${process.env.SITE_URL}/reset_password?username=${username}&password_reset_code=${code}`;
             mailer.sendEmail("RESET_PASSWORD", username, { pwreset_link });
           }
         }
@@ -59,7 +57,7 @@ function resetPasswordRequestHandler(req, res) {
         else {
           bcrypt.hash(
             req.body.password,
-            config.bcrypt.rounds,
+            config.passwordSaltRounds,
             (err, hashed_p) => {
               if (err) res.error(err, `Encrypting new password`);
               else

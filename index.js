@@ -3,21 +3,18 @@ const fs = require("fs");
 const http = require("http");
 const jwt = require("jsonwebtoken");
 const path = require("path");
-const URL = require("url");
 
 const async = require("./libs/async");
 const auth = require("./auth");
-const config = require("./config");
 const middleware = require("./libs/middleware");
 const users = require("./users");
 
 const URLS_REQUIRING_AUTHENTICATION = ["/api/me/boards"];
 
+const { PORT } = process.env;
 http
   .createServer(handleRequest)
-  .listen(config.port, () =>
-    console.log(`Server is running on port ${config.port}`)
-  );
+  .listen(PORT, () => console.log(`Server is running on port ${PORT}`));
 
 //////////////////////
 // HELPER FUNCTIONS //
@@ -29,7 +26,7 @@ function handleRequest(req, res) {
   res.sendFile = sendStaticFileResponse;
 
   let { method, url } = req;
-  url = URL.parse(url).pathname;
+  url = new URL(url, `http://${req.headers.host}`).pathname;
   if (url === "/") url = "/index.html";
   else if (url === "/reset_password") url = "/index.html";
 
@@ -103,7 +100,7 @@ function decodeRequestToken(req, cb) {
     req.decoded = null;
     process.nextTick(cb);
   } else {
-    jwt.verify(token, config.jsonwebtoken.key, (err, decoded) => {
+    jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
       if (err) {
         cb(err);
       } else {

@@ -8,15 +8,15 @@ const config = require("../config");
 function handleLoginSuccess(payload, res) {
   jwt.sign(
     payload,
-    config.jsonwebtoken.key,
-    { expiresIn: config.jsonwebtoken.expiry },
+    process.env.JWT_KEY,
+    { expiresIn: config.jwtExpirySecs },
     (err, token) => {
       if (err) {
         res.error(err, "Creating JWT token on login");
       } else {
         res.setHeader(
           "Set-Cookie",
-          `token=${token}; Max-Age=${config.jsonwebtoken.expiry}; Path=/`
+          `token=${token}; Max-Age=${config.jwtExpirySecs}; Path=/`
         );
         res.json({ redirect_url: "/boards.html" });
       }
