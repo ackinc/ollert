@@ -1,186 +1,186 @@
 section {
-    background-color: #FFFFFF;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.1);
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-    margin: 70px auto;
-    padding: 20px 0;
-    width: 40%;
+  margin: 70px auto;
+  padding: 20px 0;
+  width: 40%;
 }
 
 section h1 {
-    font-size: 2em;
-    margin-bottom: 30px;
-    text-align: center;
-    text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.1);
+  font-size: 2em;
+  margin-bottom: 30px;
+  text-align: center;
+  text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.1);
 }
 
 .split {
-    position: relative;
-    display: flex;
-    width: 100%;
+  position: relative;
+  display: flex;
+  width: 100%;
 }
 
 .split .left {
-    width: 50%;
-    z-index: 0;
+  width: 50%;
+  z-index: 0;
 }
 
 .split .separator {
-    background: linear-gradient(white 5%, rgba(0, 0, 0, 0), white 95%);
+  background: linear-gradient(white 5%, rgba(0, 0, 0, 0), white 95%);
 
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%), translateY(-50%);
-    
-    height: 100%;
-    width: 20px;
-    z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%), translateY(-50%);
+
+  height: 100%;
+  width: 20px;
+  z-index: 1;
 }
 
 .split .right {
-    border-left: 1px solid darkgray;
-    width: 50%;
-    z-index: 0;
+  border-left: 1px solid darkgray;
+  width: 50%;
+  z-index: 0;
 }
 
 section form {
-    margin-left: 20px;
-    margin-right: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 section#email_verification_section form {
-    max-width: 60%;
+  max-width: 60%;
 }
 
 section form .input-group {
-    margin-bottom: 8px;
+  margin-bottom: 8px;
 }
 
 section form .input-group label {
-    color: rgba(0, 0, 0, 0.6);
-    display: block;
-    font-size: 0.7em;
-    margin-bottom: 2px;
+  color: rgba(0, 0, 0, 0.6);
+  display: block;
+  font-size: 0.7em;
+  margin-bottom: 2px;
 }
 
 section form .input-group input {
-    height: 40px;
-    background-color: rgba(0, 0, 0, 0.05);
-    border: 0px;
-    border-radius: 5px;
-    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.5);
-    padding-left: 5px;
-    padding-right: 5px;
-    width: 95%;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 0px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.5);
+  padding-left: 5px;
+  padding-right: 5px;
+  width: 95%;
 }
 
 section form .input-group .subtext {
-    font-size: 0.6em;
-    margin-top: 3px;
+  font-size: 0.6em;
+  margin-top: 3px;
 }
 
 section form .info {
-    color: yellowgreen;
-    font-size: 0.8em;
-    text-align: left;
+  color: yellowgreen;
+  font-size: 0.8em;
+  text-align: left;
 }
 
 section form .error {
-    color: red;
-    font-size: 0.8em;
-    text-align: left;
+  color: red;
+  font-size: 0.8em;
+  text-align: left;
 }
 
 section form button {
-    background-color: green;
-    border: 0px;
-    color: white;
+  background-color: green;
+  border: 0px;
+  color: white;
 
-    text-transform: uppercase;
+  text-transform: uppercase;
 
-    margin-top: 10px;
+  margin-top: 10px;
 
-    height: 40px;
-    width: 95%;
+  height: 40px;
+  width: 95%;
 }
 
 section form button:hover {
-    background-color: darkgreen;
+  background-color: darkgreen;
 }
 
 section div.social-login {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 section div.social-login h1 {
-    color: rgba(0, 0, 0, 0.6);
-    font-size: 1em;
-    margin-bottom: 15px;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 1em;
+  margin-bottom: 15px;
 }
 
 .social-login .btn-social-login {
-    border-radius: 2px;
+  border-radius: 2px;
 
-    display: flex;
-    align-items: center;
-    
-    margin-bottom: 15px;
-    
-    height: 40px;
-    width: 75%;
+  display: flex;
+  align-items: center;
+
+  margin-bottom: 15px;
+
+  height: 40px;
+  width: 75%;
 }
 
 .social-login .btn-social-login:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .social-login .btn-google {
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    color: rgba(0, 0, 0, 0.6);
-    
-    font-family: Roboto;
-    font-size: 0.8em;
-    font-weight: bold;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  color: rgba(0, 0, 0, 0.6);
+
+  font-family: Roboto;
+  font-size: 0.8em;
+  font-weight: bold;
 }
 
 .social-login .btn-google:hover {
-    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.2);
 }
 
 .social-login .btn-google img {
-    margin-left: 18px;
-    margin-right: 18px;
-    
-    transform: scale(1.2);
+  margin-left: 18px;
+  margin-right: 18px;
+
+  transform: scale(1.2);
 }
 
 .social-login .btn-facebook {
-    background-color: #4267b2;
-    color: white;
-    
-    font-size: 0.8em;
-    font-weight: bold;
+  background-color: #4267b2;
+  color: white;
+
+  font-size: 0.8em;
+  font-weight: bold;
 }
 
 .social-login .btn-facebook:hover {
-    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.2);
 }
 
 .social-login .btn-facebook img {
-    transform: scale(0.6) translateX(-5px) translateY(-2px);
-    margin-left: 18px;
-    margin-right: 18px;
+  transform: scale(0.6) translateX(-5px) translateY(-2px);
+  margin-left: 18px;
+  margin-right: 18px;
 }
 
 section p {
-    font-size: 0.8em;
-    margin-top: 30px;
+  font-size: 0.8em;
+  margin-top: 30px;
 }
