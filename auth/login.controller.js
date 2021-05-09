@@ -7,7 +7,12 @@ const common = require("./common");
 const config = require("../config");
 const db = require("../db");
 const ev = require("./email_verification.controller");
-const google_auth_client = new OAuth2Client(config.google.client_id);
+
+const { GOOGLE_OAUTH2_CLIENT_ID, GOOGLE_OAUTH2_CLIENT_SECRET } = process.env;
+const googleOauth2Client = new OAuth2Client(
+  GOOGLE_OAUTH2_CLIENT_ID,
+  GOOGLE_OAUTH2_CLIENT_SECRET
+);
 const util = require("../libs/util");
 
 function login(req, res) {
@@ -19,7 +24,7 @@ function login(req, res) {
 function loginWithGoogle(req, res) {
   const token = req.body.token;
 
-  google_auth_client.verifyIdToken(
+  googleOauth2Client.verifyIdToken(
     { idToken: token, audience: config.google.client_id },
     (err, ticket) => {
       if (err) {
