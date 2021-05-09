@@ -4,7 +4,7 @@
   "description": "Project 1: A Trello clone in Vanilla JS",
   "main": "index.js",
   "dependencies": {
-    "bcrypt": "^3.0.0",
+    "bcrypt": "^5.0.1",
     "fb": "^2.0.0",
     "google-auth-library": "^1.6.1",
     "jsonwebtoken": "^8.3.0",
