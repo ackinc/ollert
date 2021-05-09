@@ -1,3 +1,3 @@
-A Trello clone
+# Ollert
 
-Built with NodeJS + VanillaJS
+A terrible-looking kanban board; built with NodeJS and VanillaJS

@@ -1,7 +1,7 @@
 {
   "name": "ollert",
   "version": "1.0.0",
-  "description": "A Trello clone",
+  "description": "A terrible-looking kanban board; built with NodeJS and VanillaJS",
   "main": "index.js",
   "dependencies": {
     "bcrypt": "^5.0.1",
