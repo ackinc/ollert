@@ -4,7 +4,7 @@
   "description": "A terrible-looking kanban board; built with NodeJS and VanillaJS",
   "main": "index.js",
   "dependencies": {
-    "bcrypt": "^5.0.1",
+    "bcrypt": "^6.0.0",
     "dotenv": "^9.0.1",
     "fb": "^2.0.0",
     "google-auth-library": "^7.0.4",
@@ -15,8 +15,8 @@
     "redis": "^3.1.2"
   },
   "devDependencies": {
-    "eslint": "^7.26.0",
-    "nodemon": "^2.0.7",
+    "eslint": "^10.0.1",
+    "nodemon": "^3.1.14",
     "prettier": "^2.2.1"
   },
   "scripts": {
